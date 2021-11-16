@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from "fs";
 
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
@@ -6,7 +6,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import HttpError from './models/http-error';
+import HttpError from "./models/http-error";
+import authRoutes from "./routes/auth-routes";
 
 dotenv.config();
 const MONGO_URI = process.env.MONGO_URI!;
@@ -29,6 +30,8 @@ app.use(cors()); //use CORS packages to setup CORS
 //   next();
 // });
 
+app.use("/api/auth", authRoutes);
+
 app.use((req, res, next) => {
   throw new HttpError("Could not find this route.", 404);
 });
@@ -47,12 +50,11 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
     .json({ message: err.message || "An unknown error occurred." });
 });
 
-
 mongoose
   .connect(MONGO_URI)
   .then(() => {
     app.listen(PORT || 8080);
-    console.log('connects to mongoDB')
+    console.log("connects to mongoDB");
   })
   .catch((err) => {
     console.log(err);

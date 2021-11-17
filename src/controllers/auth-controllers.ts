@@ -6,9 +6,11 @@ import jwt from "jsonwebtoken";
 
 import HttpError from "../models/http-error";
 import { userModel as User } from "../models/user";
+import { adminModel as Admin } from "../models/admin";
 
 dotenv.config();
 const JWT_KEY = process.env.JWT_KEY!;
+const ADMIN_USER = process.env.ADMIN_USER!;
 
 export const signUp = async (
   req: Request,
@@ -23,7 +25,9 @@ export const signUp = async (
   const { username, password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    return next(new HttpError('Passwords do not match. Please try again.', 422))
+    return next(
+      new HttpError("Passwords do not match. Please try again.", 422)
+    );
   }
 
   let existingUser;
@@ -61,7 +65,9 @@ export const signUp = async (
   try {
     await newUser.save();
   } catch (error) {
-    return next(new HttpError("Signing up failed, please try again later.", 500));
+    return next(
+      new HttpError("Signing up failed, please try again later.", 500)
+    );
   }
 
   let token;
@@ -77,12 +83,64 @@ export const signUp = async (
       }
     );
   } catch (error) {
-    return next(new HttpError('Signing up failed, please try again later.', 500))
+    return next(
+      new HttpError("Signing up failed, please try again later.", 500)
+    );
   }
 
   res.status(201).json({
     userId: newUser.id,
     username: newUser.username,
-    token: token
-  })
+    token: token,
+  });
+};
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username, password } = req.body;
+
+  if (username === ADMIN_USER) {
+    let admin;
+    try {
+      admin = await Admin.findOne({ username: username });
+    } catch (error) {
+      return next(new HttpError("Database error.", 500));
+    }
+    if (!admin) {
+      return next(new HttpError("Admin not found.", 403));
+    }
+    let isValidPassword = false;
+    try {
+      isValidPassword = await bcrypt.compare(password, admin.password);
+    } catch (error) {
+      return next(new HttpError("Bcrypt error", 500));
+    }
+
+    if (!isValidPassword) {
+      return next(new HttpError("Invalid credentials.", 403));
+    }
+
+    let token;
+
+    try {
+      token = await jwt.sign(
+        { userId: admin.id, username: admin.username },
+        JWT_KEY,
+        {
+          expiresIn: "1hr",
+        }
+      );
+    } catch (error) {
+      return next(new HttpError("JWT error.", 500));
+    }
+
+    res.status(200).json({
+      token: token,
+      userId: admin.id,
+      username: admin.username,
+    });
+  }
 };

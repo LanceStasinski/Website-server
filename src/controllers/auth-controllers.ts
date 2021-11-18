@@ -32,7 +32,7 @@ export const signUp = async (
 
   let existingUser;
   try {
-    existingUser = await User.findOne({ username: username });
+    existingUser = await Admin.findOne({ username: username });
   } catch (error) {
     return next(
       new HttpError("Signing up failed, please try again later.", 500)
@@ -57,7 +57,7 @@ export const signUp = async (
     );
   }
 
-  const newUser = new User({
+  const newUser = new Admin({
     username,
     password: hashedPassword,
   });

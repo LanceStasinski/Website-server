@@ -32,7 +32,7 @@ export const signUp = async (
 
   let existingUser;
   try {
-    existingUser = await Admin.findOne({ username: username });
+    existingUser = await User.findOne({ username: username });
   } catch (error) {
     return next(
       new HttpError("Signing up failed, please try again later.", 500)
@@ -57,7 +57,7 @@ export const signUp = async (
     );
   }
 
-  const newUser = new Admin({
+  const newUser = new User({
     username,
     password: hashedPassword,
   });
@@ -141,6 +141,44 @@ export const login = async (
       token: token,
       userId: admin.id,
       username: admin.username,
+    });
+  } else {
+    let existingUser;
+    try {
+      existingUser = await User.findOne({ username: username })
+    } catch (error) {
+      return next(new HttpError('Login failed. Please try again.', 500))
+    }
+    if (!existingUser) {
+      return next(new HttpError('User not found. Sign up?', 403))
+    }
+    let isValidPassword = false;
+    try {
+      isValidPassword = await bcrypt.compare(password, existingUser.password)
+    } catch (error) {
+      return next(new HttpError('Login failed. Please try again.', 500))
+    }
+    if (!isValidPassword) {
+      return next(new HttpError('Invalid credentials.', 403))
+    }
+    let token;
+
+    try {
+      token = await jwt.sign(
+        { userId: existingUser.id, username: existingUser.username },
+        JWT_KEY,
+        {
+          expiresIn: "1hr",
+        }
+      );
+    } catch (error) {
+      return next(new HttpError("Login failed. Please try again.", 500));
+    }
+
+    res.status(200).json({
+      token: token,
+      userId: existingUser.id,
+      username: existingUser.username,
     });
   }
 };

@@ -142,24 +142,32 @@ export const login = async (
       userId: admin.id,
       username: admin.username,
     });
+
+    return;
   } else {
-    let existingUser;
+    let existingUser = undefined;
     try {
-      existingUser = await User.findOne({ username: username })
+      existingUser = await User.findOne({ username: username });
     } catch (error) {
-      return next(new HttpError('Login failed. Please try again.', 500))
+      const err = new HttpError("Login failed. Please try again.", 500);
+      next(err);
+      return err;
     }
     if (!existingUser) {
-      return next(new HttpError('User not found. Sign up?', 403))
+      const err = new HttpError("User not found. Sign up?", 403);
+      next(err);
+      return err;
     }
     let isValidPassword = false;
     try {
-      isValidPassword = await bcrypt.compare(password, existingUser.password)
+      isValidPassword = await bcrypt.compare(password, existingUser.password);
     } catch (error) {
-      return next(new HttpError('Login failed. Please try again.', 500))
+      const err = new HttpError("Login failed. Please try again.", 500);
+      next(err);
+      return err;
     }
     if (!isValidPassword) {
-      return next(new HttpError('Invalid credentials.', 403))
+      return next(new HttpError("Invalid credentials.", 403));
     }
     let token;
 
@@ -180,5 +188,7 @@ export const login = async (
       userId: existingUser.id,
       username: existingUser.username,
     });
+
+    return;
   }
 };

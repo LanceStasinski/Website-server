@@ -145,7 +145,7 @@ export const login = async (
 
     return;
   } else {
-    let existingUser = undefined;
+    let existingUser;
     try {
       existingUser = await User.findOne({ username: username });
     } catch (error) {
@@ -158,6 +158,7 @@ export const login = async (
       next(err);
       return err;
     }
+
     let isValidPassword = false;
     try {
       isValidPassword = await bcrypt.compare(password, existingUser.password);
@@ -167,12 +168,14 @@ export const login = async (
       return err;
     }
     if (!isValidPassword) {
-      return next(new HttpError("Invalid credentials.", 403));
+      const err = new HttpError("Invalid credentials.", 403);
+      next(err);
+      return err;
     }
-    let token;
 
+    let token;
     try {
-      token = await jwt.sign(
+      token = jwt.sign(
         { userId: existingUser.id, username: existingUser.username },
         JWT_KEY,
         {
@@ -180,15 +183,15 @@ export const login = async (
         }
       );
     } catch (error) {
-      return next(new HttpError("Login failed. Please try again.", 500));
+      const err = new HttpError("Login failed. Please try again.", 500);
+      next(err);
+      return err;
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       token: token,
       userId: existingUser.id,
       username: existingUser.username,
     });
-
-    return;
   }
 };

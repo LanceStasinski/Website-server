@@ -11,7 +11,7 @@
     "dev:debug": "nodemon --config nodemon.json --inspect-brk src/app.ts",
     "start": "node dist/src/app.ts",
     "build": "tsc --project ./",
-    "test": "mocha -r ts-node/register src/test/**/*.test.ts --timeout 60000"
+    "test": "mocha -r ts-node/register src/test/**/*.test.ts --timeout 10000"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",

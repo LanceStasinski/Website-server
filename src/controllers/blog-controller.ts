@@ -9,6 +9,18 @@ import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
 import { userModel as User } from "../models/user";
 
+export const createPost = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    console.log(req.body);
+  } catch (error) {
+    const err = new HttpError('Issue recieving data', 500);
+    next(err);
+    return err;
+  }
+
+  res.status(201).json({message: "Data recieved"})
+}
+
 export const postComment = async (
   req: Request,
   res: Response,
@@ -56,6 +68,7 @@ export const postComment = async (
     sess.startTransaction();
     await createdComment.save({ session: sess });
     user.comments.push(createdComment);
+    //Need to also push to blogId
     await user.save({ session: sess });
     await sess.commitTransaction();
   } catch (error) {

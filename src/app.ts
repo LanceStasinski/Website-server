@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
@@ -18,6 +19,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
+app.use("/uploads/images", express.static(path.join("upload", "images")));
 app.use(cors()); //use CORS packages to setup CORS
 
 // Manually set CORS

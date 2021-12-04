@@ -9,17 +9,60 @@ import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
 import { userModel as User } from "../models/user";
 
-export const createPost = async (req: Request, res: Response, next: NextFunction) => {
+export const createPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     console.log(req.body);
+    // const { title, blurb, month, day, year, numContent, numReferences } =
+    //   await req.body;
+
+    // const content = [];
+    // for (let i = 1; i <= numContent; i++) {
+    //   const contentObj: any = {};
+    //   const regex = new RegExp(i.toString());
+    //   for (const key of req.body) {
+    //     if (regex.test(key)) {
+    //       if (/types/.test(key)) {
+    //         contentObj.title = req.body[key];
+    //       }
+    //       if (/text/.test(key)) {
+    //         contentObj.text = req.body[key];
+    //       }
+    //       if (/alt/.test(key)) {
+    //         contentObj.alt = req.body[key];
+    //       }
+    //       if (/language/.test(key)) {
+    //         contentObj.language = req.body[key];
+    //       }
+    //     }
+    //   }
+    //   if (Object.keys(contentObj).length > 0) {
+    //     content.push(contentObj);
+    //   }
+    // }
+
+    // const post = {
+    //   title,
+    //   blurb,
+    //   month,
+    //   day,
+    //   year,
+    //   // content,
+    // };
+    // console.log(post);
+
+    res.status(201).json({ message: "Post received." });
   } catch (error) {
-    const err = new HttpError('Issue recieving data', 500);
+    const err = new HttpError("Issue recieving data", 500);
     next(err);
     return err;
   }
 
-  res.status(201).json({message: "Data recieved"})
-}
+  res.status(201).json({ message: "Data recieved" });
+};
 
 export const postComment = async (
   req: Request,

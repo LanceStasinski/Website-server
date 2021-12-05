@@ -9,12 +9,21 @@ import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
 import { userModel as User } from "../models/user";
 
+dotenv.config();
+const ADMIN_ID = process.env.ADMIN_ID;
+
 export const createPost = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    if (req.userId !== ADMIN_ID) {
+      const err = new HttpError("Invalid credentials.", 403);
+      next(err);
+      return err;
+    }
+
     interface ContentObj {
       type: string;
       text?: string;

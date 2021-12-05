@@ -15,19 +15,24 @@ export const createPost = async (
   next: NextFunction
 ) => {
   try {
-
-    const { title, blurb, month, day, year, numContent, numReferences } =
-      req.body;
-
-    const content: any = [];
-
     interface ContentObj {
-      types: string;
+      type: string;
       text?: string;
       alt?: string;
       language?: string;
     }
 
+    interface RefObj {
+      authors: string;
+      date: string;
+      title: string;
+      url: string;
+    }
+
+    const { title, blurb, month, day, year, numContent, numReferences } =
+      req.body;
+
+    const content: ContentObj[] = [];
     const reqKeys = Object.keys(req.body);
     for (let i = 1; i <= Number(numContent); i++) {
       const contentObj: ContentObj = <ContentObj>{};
@@ -35,7 +40,7 @@ export const createPost = async (
       for (const key of reqKeys) {
         if (regex.test(key)) {
           if (/types/.test(key)) {
-            contentObj.types = req.body[key];
+            contentObj.type = req.body[key];
           }
           if (/text/.test(key)) {
             contentObj.text = req.body[key];
@@ -53,6 +58,31 @@ export const createPost = async (
       }
     }
 
+    const references: RefObj[] = [];
+    for (let i = 1; i <= Number(numReferences); i++) {
+      const refObj: RefObj = <RefObj>{};
+      const regex = new RegExp(i.toString());
+      for (const key of reqKeys) {
+        if (regex.test(key)) {
+          if (/authors/.test(key)) {
+            refObj.authors = req.body[key];
+          }
+          if (/date/.test(key)) {
+            refObj.date = req.body[key];
+          }
+          if (/title/.test(key)) {
+            refObj.title = req.body[key];
+          }
+          if (/url/.test(key)) {
+            refObj.url = req.body[key];
+          }
+        }
+      }
+      if (Object.keys(refObj).length > 0) {
+        references.push(refObj);
+      }
+    }
+
     const post = {
       title,
       blurb,
@@ -60,7 +90,9 @@ export const createPost = async (
       day,
       year,
       content,
+      references,
     };
+
     console.log(post);
   } catch (error) {
     console.log(error);

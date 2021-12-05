@@ -19,7 +19,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use("/uploads/images", express.static(path.join("upload", "images")));
+// app.use("/uploads/images", express.static(path.join("upload", "images")));
 app.use(cors()); //use CORS packages to setup CORS
 
 // Manually set CORS

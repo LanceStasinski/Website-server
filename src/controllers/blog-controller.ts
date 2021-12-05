@@ -15,47 +15,55 @@ export const createPost = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body);
-    // const { title, blurb, month, day, year, numContent, numReferences } =
-    //   await req.body;
 
-    // const content = [];
-    // for (let i = 1; i <= numContent; i++) {
-    //   const contentObj: any = {};
-    //   const regex = new RegExp(i.toString());
-    //   for (const key of req.body) {
-    //     if (regex.test(key)) {
-    //       if (/types/.test(key)) {
-    //         contentObj.title = req.body[key];
-    //       }
-    //       if (/text/.test(key)) {
-    //         contentObj.text = req.body[key];
-    //       }
-    //       if (/alt/.test(key)) {
-    //         contentObj.alt = req.body[key];
-    //       }
-    //       if (/language/.test(key)) {
-    //         contentObj.language = req.body[key];
-    //       }
-    //     }
-    //   }
-    //   if (Object.keys(contentObj).length > 0) {
-    //     content.push(contentObj);
-    //   }
-    // }
+    const { title, blurb, month, day, year, numContent, numReferences } =
+      req.body;
 
-    // const post = {
-    //   title,
-    //   blurb,
-    //   month,
-    //   day,
-    //   year,
-    //   // content,
-    // };
-    // console.log(post);
+    const content: any = [];
 
-    res.status(201).json({ message: "Post received." });
+    interface ContentObj {
+      types: string;
+      text?: string;
+      alt?: string;
+      language?: string;
+    }
+
+    const reqKeys = Object.keys(req.body);
+    for (let i = 1; i <= Number(numContent); i++) {
+      const contentObj: ContentObj = <ContentObj>{};
+      const regex = new RegExp(i.toString());
+      for (const key of reqKeys) {
+        if (regex.test(key)) {
+          if (/types/.test(key)) {
+            contentObj.types = req.body[key];
+          }
+          if (/text/.test(key)) {
+            contentObj.text = req.body[key];
+          }
+          if (/alt/.test(key)) {
+            contentObj.alt = req.body[key];
+          }
+          if (/language/.test(key)) {
+            contentObj.language = req.body[key];
+          }
+        }
+      }
+      if (Object.keys(contentObj).length > 0) {
+        content.push(contentObj);
+      }
+    }
+
+    const post = {
+      title,
+      blurb,
+      month,
+      day,
+      year,
+      content,
+    };
+    console.log(post);
   } catch (error) {
+    console.log(error);
     const err = new HttpError("Issue recieving data", 500);
     next(err);
     return err;

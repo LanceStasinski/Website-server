@@ -4,7 +4,6 @@ declare global {
   namespace Express {
     interface Request {
       userId?: any;
-      fileNames?: string[];
     }
   }
 }

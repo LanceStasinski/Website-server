@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import multer from "multer";
-import express from 'express';
+import express from "express";
 
 import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
@@ -32,7 +32,7 @@ export const createPost = async (
     }
 
     interface ContentObj {
-      type: string;
+      type: "paragraph" | "image" | "imageUrl" | "code" | "heading";
       text?: string;
       alt?: string;
       language?: string;
@@ -74,15 +74,46 @@ export const createPost = async (
         }
       }
 
-      for(const file of filesArr) {
+      for (const file of filesArr) {
         if (regex.test(file.fieldname)) {
           imgData.key = file.key;
           imgData.bucket = file.bucket;
-
         }
       }
       contentObj.image = imgData;
 
+      if (contentObj.type === "image" || contentObj.type === "imageUrl") {
+        if (contentObj.alt === "") {
+          const err = new HttpError("Alternative text needed.", 422);
+          next(err);
+          return err;
+        }
+      }
+
+      if (
+        contentObj.type === "code" ||
+        contentObj.type === "heading" ||
+        contentObj.type === "paragraph" ||
+        contentObj.type === 'imageUrl'
+      ) {
+        if (contentObj.text === "") {
+          const err = new HttpError("Text content missing.", 422);
+          next(err);
+          return err;
+        }
+      }
+
+      if (contentObj.type === 'code' && contentObj.language === '') {
+        const err = new HttpError("Code language missing.", 422);
+        next(err);
+        return err;
+      }
+
+      if (contentObj.type === 'image' && Object.keys(imgData).length === 0) {
+        const err = new HttpError("Image specified but not provided.", 422);
+        next(err);
+        return err;
+      }
 
       if (Object.keys(contentObj).length > 0) {
         content.push(contentObj);
@@ -124,7 +155,7 @@ export const createPost = async (
       references,
     };
 
-    console.log(post.content[0].image);
+    console.log(post);
   } catch (error) {
     console.log(error);
     const err = new HttpError("Issue recieving data", 500);

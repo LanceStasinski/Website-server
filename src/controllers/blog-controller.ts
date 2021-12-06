@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import express from 'express';
 
 import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
@@ -24,11 +26,17 @@ export const createPost = async (
       return err;
     }
 
+    interface ImageData {
+      key: string;
+      bucket: string;
+    }
+
     interface ContentObj {
       type: string;
       text?: string;
       alt?: string;
       language?: string;
+      image?: ImageData;
     }
 
     interface RefObj {
@@ -43,9 +51,12 @@ export const createPost = async (
 
     const content: ContentObj[] = [];
     const reqKeys = Object.keys(req.body);
+    const filesArr: any | Express.Multer.File[] = req.files;
+
     for (let i = 1; i <= Number(numContent); i++) {
       const contentObj: ContentObj = <ContentObj>{};
       const regex = new RegExp(i.toString());
+      const imgData = <ImageData>{};
       for (const key of reqKeys) {
         if (regex.test(key)) {
           if (/types/.test(key)) {
@@ -62,6 +73,17 @@ export const createPost = async (
           }
         }
       }
+
+      for(const file of filesArr) {
+        if (regex.test(file.fieldname)) {
+          imgData.key = file.key;
+          imgData.bucket = file.bucket;
+
+        }
+      }
+      contentObj.image = imgData;
+
+
       if (Object.keys(contentObj).length > 0) {
         content.push(contentObj);
       }
@@ -102,7 +124,7 @@ export const createPost = async (
       references,
     };
 
-    console.log(post);
+    console.log(post.content[0].image);
   } catch (error) {
     console.log(error);
     const err = new HttpError("Issue recieving data", 500);

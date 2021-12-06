@@ -34,8 +34,8 @@ const upload = multer({
     s3: s3,
     bucket: AMZ_S3_BUCKET!,
     key: function (req, file, cb) {
-      console.log(file);
-      cb(null, uuid() + '-' + file.originalname);
+      const fileName = uuid() + "-" + file.originalname;
+      cb(null, fileName);
     },
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });

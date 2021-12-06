@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import multer from "multer";
-import express from "express";
 
 import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
@@ -155,7 +151,7 @@ export const createPost = async (
       references,
     };
 
-    console.log(post);
+
   } catch (error) {
     console.log(error);
     const err = new HttpError("Issue recieving data", 500);

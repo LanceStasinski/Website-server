@@ -9,9 +9,9 @@ const postsSchema = new Schema({
   content: [
     {
       type: { type: String, required: true },
-      text: { type: String, required: true },
-      alt: { type: String, required: true },
-      language: { type: String, required: true },
+      text: { type: String, required: false },
+      alt: { type: String, required: false },
+      language: { type: String, required: false },
       image: {
         key: { type: String, required: false },
         bucket: { type: String, required: false },
@@ -20,15 +20,15 @@ const postsSchema = new Schema({
   ],
   references: [
     {
-      authors: { type: String, required: true },
-      date: { type: String, required: true },
-      title: { type: String, required: true },
-      url: { type: String, required: true },
+      authors: { type: String, required: false },
+      date: { type: String, required: false },
+      title: { type: String, required: false },
+      url: { type: String, required: false },
     }
   ],
 
   comments: [{ type: mongoose.Types.ObjectId, required: false, ref: "Comment" }],
-  admin: [{ type: mongoose.Types.ObjectId, ref: "Admin", required: true }],
+  admin: { type: mongoose.Types.ObjectId, ref: "Admin", required: true },
 });
 
 interface PostsDoc {
@@ -40,26 +40,26 @@ interface PostsDoc {
   content: [
     {
       type: string;
-      text: string;
-      alt: string;
-      language: string;
-      image: {
-        key: string;
-        bucket: string;
+      text?: string;
+      alt?: string;
+      language?: string;
+      image?: {
+        key?: string;
+        bucket?: string;
       }
     }
   ],
   references: [
     {
-      authors: string;
-      date: string;
-      title: string;
-      url: string;
+      authors?: string;
+      date?: string;
+      title?: string;
+      url?: string;
     }
   ]
 
-  comments: any[];
-  admin: any[];
+  comments?: any[];
+  admin: any;
 }
 
 export const postModel = model<PostsDoc>("Post", postsSchema);

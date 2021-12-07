@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import aws from "aws-sdk";
 
 import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
@@ -11,6 +12,8 @@ import { postModel as Post } from "../models/post";
 
 dotenv.config();
 const ADMIN_ID = process.env.ADMIN_ID;
+const AMZ_ACCESS_KEY = process.env.AMZ_ACCESS_KEY;
+const AMZ_SECRET_ACCESS_KEY = process.env.AMZ_SECRET_ACCESS_KEY;
 
 export const createPost = async (
   req: Request,
@@ -206,7 +209,7 @@ export const getPostHeaders = async (
   }
 
   if (!posts) {
-    const err = new HttpError('Posts not found.', 404);
+    const err = new HttpError("Posts not found.", 404);
     next(err);
     return err;
   }
@@ -233,12 +236,34 @@ export const getPost = async (
   }
 
   if (!post) {
-    const err = new HttpError('Posts not found.', 404);
+    const err = new HttpError("Posts not found.", 404);
     next(err);
     return err;
   }
 
-  res.status(200).json({ post })
+  post.content.map((content) => {
+    if (content.type === "image") {
+      const s3 = new aws.S3({
+        accessKeyId: AMZ_ACCESS_KEY,
+        secretAccessKey: AMZ_SECRET_ACCESS_KEY,
+        region: "us-east-1",
+      });
+      const url = s3.getSignedUrl("getObject", {
+        Bucket: content.image!.bucket,
+        Key: content.image!.key,
+        Expires: 60,
+      });
+
+      if (!url) {
+        const err = new HttpError('Cannot get image.', 500);
+        next(err);
+        return err;
+      }
+      content.text = url;
+    }
+  });
+
+  res.status(200).json({ post });
 };
 
 export const postComment = async (

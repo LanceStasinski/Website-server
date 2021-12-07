@@ -196,7 +196,6 @@ export const getPostHeaders = async (
       {},
       { title: 1, blurb: 1, month: 1, day: 1, year: 1 }
     );
-
   } catch (error) {
     const err = new HttpError(
       "Could not get posts, please try again later.",
@@ -206,9 +205,40 @@ export const getPostHeaders = async (
     return err;
   }
 
-  res
-    .status(200)
-    .json({ posts });
+  if (!posts) {
+    const err = new HttpError('Posts not found.', 404);
+    next(err);
+    return err;
+  }
+
+  res.status(200).json({ posts });
+};
+
+export const getPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const postId = req.params.postId;
+  let post;
+  try {
+    post = await Post.findById(postId, "-admin");
+  } catch (error) {
+    const err = new HttpError(
+      "Could not get post, please try again later.",
+      500
+    );
+    next(err);
+    return err;
+  }
+
+  if (!post) {
+    const err = new HttpError('Posts not found.', 404);
+    next(err);
+    return err;
+  }
+
+  res.status(200).json({ post })
 };
 
 export const postComment = async (

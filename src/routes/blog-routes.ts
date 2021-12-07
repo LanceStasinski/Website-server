@@ -2,10 +2,12 @@ import express from "express";
 import { check } from "express-validator";
 
 import { auth } from "../middleware/check-auth";
-import { postComment, createPost } from "../controllers/blog-controller";
+import { postComment, createPost, getPostHeaders } from "../controllers/blog-controller";
 import upload from "../middleware/file-upload";
 
 const router = express.Router();
+
+router.get('/posts', getPostHeaders)
 
 router.use(auth);
 

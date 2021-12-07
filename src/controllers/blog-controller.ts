@@ -150,7 +150,7 @@ export const createPost = async (
     year,
     content,
     references,
-    admin: req.userId
+    admin: req.userId,
   });
 
   let admin;
@@ -183,6 +183,32 @@ export const createPost = async (
   }
 
   res.status(201).json({ message: "Data recieved" });
+};
+
+export const getPostHeaders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let posts;
+  try {
+    posts = await Post.find(
+      {},
+      { title: 1, blurb: 1, month: 1, day: 1, year: 1 }
+    );
+
+  } catch (error) {
+    const err = new HttpError(
+      "Could not get posts, please try again later.",
+      500
+    );
+    next(err);
+    return err;
+  }
+
+  res
+    .status(200)
+    .json({ posts });
 };
 
 export const postComment = async (

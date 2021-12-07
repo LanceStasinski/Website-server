@@ -18,7 +18,12 @@ router.get("/posts/:postId", getPost);
 
 router.use(auth);
 
-router.post("/create-post", upload.any(), createPost);
+router.post(
+  "/create-post",
+  [check("title").not().isEmpty(), check("blurb").not().isEmpty()],
+  upload.any(),
+  createPost
+);
 
 router.post("/comment", check("newComment").not().isEmpty(), postComment);
 

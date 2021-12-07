@@ -20,6 +20,16 @@ export const createPost = async (
   res: Response,
   next: NextFunction
 ) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new HttpError(
+      "Title and/or blurb missing.",
+      422
+    );
+    next(err);
+    return err;
+  }
+
   if (req.userId !== ADMIN_ID) {
     const err = new HttpError("Invalid credentials.", 403);
     next(err);
@@ -255,7 +265,7 @@ export const getPost = async (
       });
 
       if (!url) {
-        const err = new HttpError('Cannot get image.', 500);
+        const err = new HttpError("Cannot get image.", 500);
         next(err);
         return err;
       }

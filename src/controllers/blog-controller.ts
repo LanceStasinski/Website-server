@@ -354,3 +354,55 @@ export const postComment = async (
 
   res.status(201).json({ message: "Comment created" });
 };
+
+export const deleteComment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const commentId = req.params.commentId;
+
+  let comment;
+  try {
+    comment = await Comment.findById(commentId)
+      .populate("creatorId")
+      .populate("postId");
+  } catch (error) {
+    const err = new HttpError("Cannot delete comment.", 500);
+    next(err);
+    return err;
+  }
+
+  if (!comment) {
+    const err = new HttpError("Cannot find comment to delete", 404);
+    next(err);
+    return err;
+  }
+
+  if (comment.creatorId._id.toString() !== req.userId) {
+    const err = new HttpError(
+      "You are not allowed to delete this comment",
+      401
+    );
+    next(err);
+    return err;
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await comment.remove({ session: sess });
+    comment.creatorId.comments.pull(comment);
+    comment.postId.comments.pull(comment);
+    await comment.creatorId.save({ session: sess });
+    await comment.postId.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (error) {
+    console.log(error);
+    const err = new HttpError("Cannot delete comment.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(200);
+};

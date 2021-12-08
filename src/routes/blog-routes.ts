@@ -7,6 +7,7 @@ import {
   createPost,
   getPostHeaders,
   getPost,
+  deleteComment,
 } from "../controllers/blog-controller";
 import upload from "../middleware/file-upload";
 
@@ -26,5 +27,7 @@ router.post(
 );
 
 router.post("/comment", check("newComment").not().isEmpty(), postComment);
+
+router.delete('/comment/:commentId', deleteComment)
 
 export default router;

@@ -352,7 +352,7 @@ export const postComment = async (
     return err;
   }
 
-  res.status(201).json({ message: "Comment created" });
+  res.status(201).json({ createdComment });
 };
 
 export const deleteComment = async (
@@ -404,5 +404,5 @@ export const deleteComment = async (
     return err;
   }
 
-  res.status(200);
+  res.status(200).json({message: 'Comment deleted.'});
 };

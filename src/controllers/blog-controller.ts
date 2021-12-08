@@ -232,7 +232,7 @@ export const getPost = async (
   const postId = req.params.postId;
   let post;
   try {
-    post = await Post.findById(postId, "-admin");
+    post = await Post.findById(postId, "-admin").populate("comments");
   } catch (error) {
     const err = new HttpError(
       "Could not get post, please try again later.",
@@ -269,7 +269,6 @@ export const getPost = async (
       content.text = url;
     }
   });
-
   res.status(200).json({ post });
 };
 
@@ -287,12 +286,6 @@ export const postComment = async (
 
   const { newComment, postId } = req.body;
   const userId = req.userId;
-
-  const createdComment = new Comment({
-    creatorId: userId,
-    comment: newComment,
-    postId,
-  });
 
   let user;
   try {
@@ -315,6 +308,13 @@ export const postComment = async (
     return err;
   }
 
+  const createdComment = new Comment({
+    creatorId: userId,
+    comment: newComment,
+    postId,
+    username: user.username,
+  });
+
   let post;
   try {
     post = await Post.findById(postId);
@@ -336,7 +336,6 @@ export const postComment = async (
     return err;
   }
 
-
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -344,10 +343,10 @@ export const postComment = async (
     user.comments!.push(createdComment);
     post.comments!.push(createdComment);
     await user.save({ session: sess });
-    await post.save({ session: sess })
+    await post.save({ session: sess });
     await sess.commitTransaction();
   } catch (error) {
-    console.log(error)
+    console.log(error);
     const err = new HttpError("Could not save comment.", 500);
     next(err);
     return err;

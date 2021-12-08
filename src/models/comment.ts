@@ -2,13 +2,13 @@ import mongoose, { Schema, model } from 'mongoose';
 
 const commentSchema = new Schema({
   comment: {type: String, required: true},
-  creator: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
+  creatorId: { type: mongoose.Types.ObjectId, required: true, ref: 'User'},
   postId: {type: mongoose.Types.ObjectId, required: true, ref: 'Post'}
 })
 
 interface CommentDoc extends mongoose.Document {
   comment: string;
-  creator: any;
+  creatorId: any;
   postId: any;
 }
 

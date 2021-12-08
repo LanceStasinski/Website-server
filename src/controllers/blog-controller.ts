@@ -22,10 +22,7 @@ export const createPost = async (
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const err = new HttpError(
-      "Title and/or blurb missing.",
-      422
-    );
+    const err = new HttpError("Title and/or blurb missing.", 422);
     next(err);
     return err;
   }
@@ -292,7 +289,7 @@ export const postComment = async (
   const userId = req.userId;
 
   const createdComment = new Comment({
-    creator: userId,
+    creatorId: userId,
     comment: newComment,
     postId,
   });
@@ -312,21 +309,45 @@ export const postComment = async (
   if (!user) {
     const err = new HttpError(
       "This user does not exist. Please login again.",
+      422
+    );
+    next(err);
+    return err;
+  }
+
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (error) {
+    const err = new HttpError(
+      "Adding comment failed, please try again later.",
       500
     );
     next(err);
     return err;
   }
 
+  if (!post) {
+    const err = new HttpError(
+      "Cannot add a comment to a post that does not exist.",
+      422
+    );
+    next(err);
+    return err;
+  }
+
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
     await createdComment.save({ session: sess });
-    user.comments.push(createdComment);
-    //Need to also push to blogId
+    user.comments!.push(createdComment);
+    post.comments!.push(createdComment);
     await user.save({ session: sess });
+    await post.save({ session: sess })
     await sess.commitTransaction();
   } catch (error) {
+    console.log(error)
     const err = new HttpError("Could not save comment.", 500);
     next(err);
     return err;

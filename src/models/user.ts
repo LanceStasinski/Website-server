@@ -8,7 +8,7 @@ const userSchema = new Schema({
   comments: [{ type: mongoose.Types.ObjectId, required: true, ref: "Comment" }],
 });
 
-userSchema.plugin(uniqueValidator);
+// userSchema.plugin(uniqueValidator);
 
 interface UserDoc {
   username: string;

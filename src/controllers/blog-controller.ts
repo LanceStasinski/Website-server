@@ -284,7 +284,7 @@ export const postComment = async (
     return err;
   }
 
-  const { newComment, postId } = req.body;
+  const { newComment, postId, date } = req.body;
   const userId = req.userId;
 
   let user;
@@ -313,6 +313,7 @@ export const postComment = async (
     comment: newComment,
     postId,
     username: user.username,
+    date
   });
 
   let post;

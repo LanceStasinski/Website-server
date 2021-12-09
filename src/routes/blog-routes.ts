@@ -26,8 +26,12 @@ router.post(
   createPost
 );
 
-router.post("/comment", check("newComment").not().isEmpty(), postComment);
+router.post(
+  "/comment",
+  [check("newComment").not().isEmpty(), check("date").not().isEmpty()],
+  postComment
+);
 
-router.delete('/comment/:commentId', deleteComment)
+router.delete("/comment/:commentId", deleteComment);
 
 export default router;

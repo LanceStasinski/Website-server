@@ -9,6 +9,7 @@ import { commentModel as Comment } from "../models/comment";
 import { userModel as User } from "../models/user";
 import { adminModel as Admin } from "../models/admin";
 import { postModel as Post } from "../models/post";
+import socket from '../socket';
 
 dotenv.config();
 const ADMIN_ID = process.env.ADMIN_ID;
@@ -353,6 +354,11 @@ export const postComment = async (
     return err;
   }
 
+  socket.getIO().emit('comments', {
+    action: 'create',
+    comment: createdComment
+  })
+
   res.status(201).json({ createdComment });
 };
 
@@ -399,11 +405,12 @@ export const deleteComment = async (
     await comment.postId.save({ session: sess });
     await sess.commitTransaction();
   } catch (error) {
-    console.log(error);
     const err = new HttpError("Cannot delete comment.", 500);
     next(err);
     return err;
   }
+
+  socket.getIO().emit('comments', {action: 'delete', commentId: comment._id})
 
   res.status(200).json({message: 'Comment deleted.'});
 };

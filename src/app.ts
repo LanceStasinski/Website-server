@@ -10,6 +10,7 @@ import cors from "cors";
 import HttpError from "./models/http-error";
 import authRoutes from "./routes/auth-routes";
 import blogRoutes from "./routes/blog-routes";
+import socket from "./socket";
 
 dotenv.config();
 const MONGO_URI = process.env.MONGO_URI!;
@@ -57,7 +58,11 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
 mongoose
   .connect(MONGO_URI)
   .then(() => {
-    app.listen(PORT || 8080);
+    const server = app.listen(PORT || 8080);
+    const io = socket.init(server);
+    io.on("connection", (sock: any) => {
+      console.log("client connected");
+    });
     console.log("connects to mongoDB");
   })
   .catch((err) => {

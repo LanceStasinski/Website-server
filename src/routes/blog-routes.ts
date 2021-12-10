@@ -8,6 +8,7 @@ import {
   getPostHeaders,
   getPost,
   deleteComment,
+  deletePost,
 } from "../controllers/blog-controller";
 import upload from "../middleware/file-upload";
 
@@ -20,11 +21,10 @@ router.get("/posts/:postId", getPost);
 router.use(auth);
 
 router.post(
-  "/create-post",
-  [check("title").not().isEmpty(), check("blurb").not().isEmpty()],
-  upload.any(),
-  createPost
+  "/create-post", upload.any(), createPost
 );
+
+router.delete("/delete/:postId", deletePost);
 
 router.post(
   "/comment",

@@ -34,15 +34,9 @@ export const createPost = async (
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const err = new HttpError("Title and/or blurb missing.", 422);
-    next(err);
-    return err;
-  }
 
   if (req.userId !== ADMIN_ID) {
-    const err = new HttpError("Invalid credentials.", 403);
+    const err = new HttpError("Invalid credentials.", 401);
     next(err);
     return err;
   }
@@ -69,6 +63,12 @@ export const createPost = async (
 
   const { title, blurb, month, day, year, numContent, numReferences } =
     req.body;
+
+  if (title === '' || blurb === '') {
+    const err = new HttpError("Title and/or blurb missing.", 422);
+    next(err);
+    return err;
+  }
 
   const content: ContentObj[] = [];
   const reqKeys = Object.keys(req.body);
@@ -286,6 +286,75 @@ export const getPost = async (
   res.status(200).json({ post });
 };
 
+export const deletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const postId = req.params.postId;
+
+  if (req.userId !== ADMIN_ID) {
+    const err = new HttpError("Invalid credentials.", 401);
+    next(err);
+    return err;
+  }
+
+  let post;
+  try {
+    post = await Post.findById(postId).populate("admin");
+  } catch (error) {
+    const err = new HttpError("MongoDB error getting post.", 500);
+    next(err);
+    return err;
+  }
+
+  if (!post) {
+    const err = new HttpError("Could not find post to delete.", 404);
+    next(err);
+    return err;
+  }
+
+  let comments;
+  try {
+    comments = await Comment.find({ postId: postId });
+  } catch (error) {
+    const err = new HttpError("MongoDB error finding comments.", 500);
+    next(err);
+    return err;
+  }
+
+  const deleteHandler = async (comment: any) => {
+    try {
+      await Comment.findByIdAndDelete(comment._id);
+    } catch (error) {
+      const err = new HttpError("Cannot delete comments for this post.", 500);
+      next(err);
+      return err;
+    }
+  };
+
+  if (comments.length > 0) {
+    comments.forEach((comment) => {
+      deleteHandler(comment);
+    });
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await post.remove({ session: sess });
+    post.admin.posts.pull(post);
+    await post.admin.save();
+    await sess.commitTransaction();
+  } catch (error) {
+    const err = new HttpError("Cannot delete post.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(200).json({message: 'Post deleted.'});
+};
+
 export const postComment = async (
   req: Request,
   res: Response,
@@ -384,13 +453,13 @@ export const postComment = async (
     <a href="${CLIENT_URL}/blog/${post._id.toString()}">View the comment</a>`,
     });
   } catch (error) {
-    console.log(error)
-    const err = new HttpError('Could not add comment.', 500);
+    console.log(error);
+    const err = new HttpError("Could not add comment.", 500);
     next(err);
     return err;
   }
 
-  res.status(201).json({ message: 'Comment added' });
+  res.status(201).json({ message: "Comment added" });
 };
 
 export const deleteComment = async (

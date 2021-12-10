@@ -3,18 +3,31 @@ import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import aws from "aws-sdk";
+import nodemailer from "nodemailer";
+import sendgridTransport from "nodemailer-sendgrid-transport";
 
 import HttpError from "../models/http-error";
 import { commentModel as Comment } from "../models/comment";
 import { userModel as User } from "../models/user";
 import { adminModel as Admin } from "../models/admin";
 import { postModel as Post } from "../models/post";
-import socket from '../socket';
+import socket from "../socket";
 
 dotenv.config();
 const ADMIN_ID = process.env.ADMIN_ID;
 const AMZ_ACCESS_KEY = process.env.AMZ_ACCESS_KEY;
 const AMZ_SECRET_ACCESS_KEY = process.env.AMZ_SECRET_ACCESS_KEY;
+const SENDGRID_KEY = process.env.SENDGRID_KEY;
+const EMAIL = process.env.EMAIL;
+const CLIENT_URL = process.env.CLIENT_URL;
+
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key: SENDGRID_KEY,
+    },
+  })
+);
 
 export const createPost = async (
   req: Request,
@@ -314,7 +327,7 @@ export const postComment = async (
     comment: newComment,
     postId,
     username: user.username,
-    date
+    date,
   });
 
   let post;
@@ -354,12 +367,30 @@ export const postComment = async (
     return err;
   }
 
-  socket.getIO().emit('comments', {
-    action: 'create',
-    comment: createdComment
-  })
+  socket.getIO().emit("comments", {
+    action: "create",
+    comment: createdComment,
+  });
 
-  res.status(201).json({ createdComment });
+  try {
+    await transporter.sendMail({
+      to: EMAIL,
+      from: EMAIL,
+      subject: `Someone added a comment to your blog.`,
+      html: `<h1>${user.username} added a comment to the "${
+        post.title
+      }" post.</h1>
+    <p>Comment: ${createdComment.comment}</p>
+    <a href="${CLIENT_URL}/blog/${post._id.toString()}">View the comment</a>`,
+    });
+  } catch (error) {
+    console.log(error)
+    const err = new HttpError('Could not add comment.', 500);
+    next(err);
+    return err;
+  }
+
+  res.status(201).json({ message: 'Comment added' });
 };
 
 export const deleteComment = async (
@@ -410,7 +441,7 @@ export const deleteComment = async (
     return err;
   }
 
-  socket.getIO().emit('comments', {action: 'delete', commentId: comment._id})
+  socket.getIO().emit("comments", { action: "delete", commentId: comment._id });
 
-  res.status(200).json({message: 'Comment deleted.'});
+  res.status(200).json({ message: "Comment deleted." });
 };

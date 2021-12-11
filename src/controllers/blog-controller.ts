@@ -313,7 +313,40 @@ export const deletePost = async (
     return err;
   }
 
-  const deleteHandler = async (comment: any) => {
+  const images = post.content.filter((item) => item.type === "image");
+  if (images.length > 0) {
+    aws.config.update({
+      secretAccessKey: AMZ_SECRET_ACCESS_KEY,
+      accessKeyId: AMZ_ACCESS_KEY,
+      region: "us-east-1",
+    });
+    const s3 = new aws.S3();
+
+    interface Image {
+      key: string;
+      bucket: string;
+    }
+
+    const deleteImage = async (image: Image) => {
+      const params = {
+        Bucket: image.bucket,
+        Key: image.key,
+      };
+      try {
+        await s3.deleteObject(params).promise();
+      } catch (error) {
+        const err = new HttpError("Could not delete image on S3.", 500);
+        next(err);
+        return err;
+      }
+    };
+
+    images.forEach((item) => {
+      deleteImage(item.image! as Image);
+    });
+  }
+
+  const deleteCommentHandler = async (comment: any) => {
     let com;
     try {
       com = await Comment.findById(comment._id).populate("creatorId");
@@ -349,7 +382,7 @@ export const deletePost = async (
     await post.remove({ session: sess });
     post.admin.posts.pull(post);
     post.comments?.forEach((comment) => {
-      deleteHandler(comment)
+      deleteCommentHandler(comment);
     });
     await post.admin.save();
     await sess.commitTransaction();

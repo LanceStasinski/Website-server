@@ -24,10 +24,14 @@ const postsSchema = new Schema({
       date: { type: String, required: false },
       title: { type: String, required: false },
       url: { type: String, required: false },
-    }
+    },
   ],
-
-  comments: [{ type: mongoose.Types.ObjectId, required: false, ref: "Comment" }],
+  updatedDay: { type: String, required: false },
+  updatedMonth: { type: String, required: false },
+  updatedYear: { type: String, required: false },
+  comments: [
+    { type: mongoose.Types.ObjectId, required: false, ref: "Comment" },
+  ],
   admin: { type: mongoose.Types.ObjectId, ref: "Admin", required: true },
 });
 
@@ -46,9 +50,9 @@ interface PostsDoc {
       image?: {
         key?: string;
         bucket?: string;
-      }
+      };
     }
-  ],
+  ];
   references: [
     {
       authors?: string;
@@ -56,8 +60,10 @@ interface PostsDoc {
       title?: string;
       url?: string;
     }
-  ]
-
+  ];
+  updatedDay?: string;
+  updatedMonth?: string;
+  updatedYear?: string;
   comments?: any[];
   admin: any;
 }

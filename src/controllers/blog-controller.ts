@@ -20,6 +20,7 @@ const AMZ_SECRET_ACCESS_KEY = process.env.AMZ_SECRET_ACCESS_KEY;
 const SENDGRID_KEY = process.env.SENDGRID_KEY;
 const EMAIL = process.env.EMAIL;
 const CLIENT_URL = process.env.CLIENT_URL;
+const AMZ_S3_BUCKET = process.env.AMZ_S3_BUCKET;
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -28,6 +29,26 @@ const transporter = nodemailer.createTransport(
     },
   })
 );
+
+interface ImageData {
+  key?: string;
+  bucket?: string;
+}
+
+interface ContentObj {
+  type: "paragraph" | "image" | "imageUrl" | "code" | "heading";
+  text?: string;
+  alt?: string;
+  language?: string;
+  image?: ImageData;
+}
+
+interface RefObj {
+  authors: string;
+  date: string;
+  title: string;
+  url: string;
+}
 
 export const createPost = async (
   req: Request,
@@ -38,26 +59,6 @@ export const createPost = async (
     const err = new HttpError("Invalid credentials.", 401);
     next(err);
     return err;
-  }
-
-  interface ImageData {
-    key: string;
-    bucket: string;
-  }
-
-  interface ContentObj {
-    type: "paragraph" | "image" | "imageUrl" | "code" | "heading";
-    text?: string;
-    alt?: string;
-    language?: string;
-    image?: ImageData;
-  }
-
-  interface RefObj {
-    authors: string;
-    date: string;
-    title: string;
-    url: string;
   }
 
   const { title, blurb, month, day, year, numContent, numReferences } =
@@ -174,6 +175,9 @@ export const createPost = async (
     content,
     references,
     admin: req.userId,
+    updatedDay: "",
+    updatedMonth: "",
+    updatedYear: "",
   });
 
   let admin;
@@ -393,6 +397,209 @@ export const deletePost = async (
   }
 
   res.status(200).json({ message: "Post deleted." });
+};
+
+export const updatePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log(req.body);
+  const postId = req.params.postId;
+  if (req.userId !== ADMIN_ID) {
+    const err = new HttpError("Invalid credentials.", 401);
+    next(err);
+    return err;
+  }
+  const { title, blurb, day, month, year, numContent, numReferences } =
+    req.body;
+
+  if (title === "" || blurb === "") {
+    const err = new HttpError("Title and/or blurb missing.", 422);
+    next(err);
+    return err;
+  }
+
+  const content: ContentObj[] = [];
+  const reqKeys = Object.keys(req.body);
+  const filesArr: any | Express.Multer.File[] = req.files;
+
+  for (let i = 1; i <= Number(numContent); i++) {
+    const contentObj: ContentObj = <ContentObj>{};
+    const regex = new RegExp(i.toString());
+    const imgData = <ImageData>{};
+    for (const key of reqKeys) {
+      if (regex.test(key)) {
+        if (/types/.test(key)) {
+          contentObj.type = req.body[key];
+        }
+        if (/text/.test(key)) {
+          contentObj.text = req.body[key];
+        }
+        if (/alt/.test(key)) {
+          contentObj.alt = req.body[key];
+        }
+        if (/language/.test(key)) {
+          contentObj.language = req.body[key];
+        }
+      }
+    }
+
+    for (const file of filesArr) {
+      if (regex.test(file.fieldname)) {
+        imgData.key = file.key;
+        imgData.bucket = file.bucket;
+      }
+    }
+    contentObj.image = imgData;
+
+    if (contentObj.type === "image" || contentObj.type === "imageUrl") {
+      if (contentObj.alt === "") {
+        const err = new HttpError("Alternative text needed.", 422);
+        next(err);
+        return err;
+      }
+    }
+
+    if (
+      contentObj.type === "code" ||
+      contentObj.type === "heading" ||
+      contentObj.type === "paragraph" ||
+      contentObj.type === "imageUrl"
+    ) {
+      if (contentObj.text === "") {
+        const err = new HttpError("Text content missing.", 422);
+        next(err);
+        return err;
+      }
+    }
+
+    if (contentObj.type === "code" && contentObj.language === "") {
+      const err = new HttpError("Code language missing.", 422);
+      next(err);
+      return err;
+    }
+
+    if (contentObj.type === "image" && Object.keys(imgData).length === 0) {
+      const err = new HttpError("Image specified but not provided.", 422);
+      next(err);
+      return err;
+    }
+
+    if (Object.keys(contentObj).length > 0) {
+      content.push(contentObj);
+    }
+  }
+
+  const references: RefObj[] = [];
+  for (let i = 1; i <= Number(numReferences); i++) {
+    const refObj: RefObj = <RefObj>{};
+    const regex = new RegExp(i.toString());
+    for (const key of reqKeys) {
+      if (regex.test(key)) {
+        if (/authors/.test(key)) {
+          refObj.authors = req.body[key];
+        }
+        if (/date/.test(key)) {
+          refObj.date = req.body[key];
+        }
+        if (/title/.test(key)) {
+          refObj.title = req.body[key];
+        }
+        if (/url/.test(key)) {
+          refObj.url = req.body[key];
+        }
+      }
+    }
+    if (Object.keys(refObj).length > 0) {
+      references.push(refObj);
+    }
+  }
+
+  let postToUpdate;
+  try {
+    postToUpdate = await Post.findById(postId);
+  } catch (error) {
+    const err = new HttpError("MongoDB error finding post.", 500);
+    next(err);
+    return err;
+  }
+
+  if (!postToUpdate) {
+    const err = new HttpError("Could not find post to update.", 404);
+    next(err);
+    return err;
+  }
+
+  postToUpdate!.title = title;
+  postToUpdate!.blurb = blurb;
+  postToUpdate!.content = content as [
+    {
+      type: string;
+      text?: string;
+      alt?: string;
+      language?: string;
+      image?: { key?: string; bucket?: string };
+    }
+  ];
+  postToUpdate!.references = references as [
+    {
+      authors?: string | undefined;
+      date?: string | undefined;
+      title?: string | undefined;
+      url?: string | undefined;
+    }
+  ];
+  postToUpdate!.updatedDay = day;
+  postToUpdate!.updatedMonth = month;
+  postToUpdate!.updatedYear = year;
+
+  console.log(postToUpdate);
+  try {
+    await postToUpdate.save();
+  } catch (error) {
+    console.log(error);
+    const err = new HttpError("MongoDB could not save post.", 500);
+    next(err);
+    return err;
+  }
+
+  let imageKeys: string[] = [];
+  for (const key of reqKeys) {
+    if (/imageKey/.test(key)) {
+      imageKeys.push(req.body[key]);
+    }
+  }
+
+  if (imageKeys.length > 0) {
+    aws.config.update({
+      secretAccessKey: AMZ_SECRET_ACCESS_KEY,
+      accessKeyId: AMZ_ACCESS_KEY,
+      region: "us-east-1",
+    });
+    const s3 = new aws.S3();
+
+    const deleteImage = async (imageKey: string) => {
+      const params = {
+        Bucket: AMZ_S3_BUCKET!,
+        Key: imageKey,
+      };
+      try {
+        await s3.deleteObject(params).promise();
+      } catch (error) {
+        console.log(error);
+        const err = new HttpError("Could not delete image on S3.", 500);
+        next(err);
+        return err;
+      }
+    };
+
+    imageKeys.forEach((item) => {
+      deleteImage(item);
+    });
+  }
+
+  res.status(204).json({ message: "Post updated." });
 };
 
 export const postComment = async (

@@ -9,6 +9,7 @@ import {
   getPost,
   deleteComment,
   deletePost,
+  updatePost,
 } from "../controllers/blog-controller";
 import upload from "../middleware/file-upload";
 
@@ -20,11 +21,11 @@ router.get("/posts/:postId", getPost);
 
 router.use(auth);
 
-router.post(
-  "/create-post", upload.any(), createPost
-);
+router.post("/create-post", upload.any(), createPost);
 
 router.delete("/delete/:postId", deletePost);
+
+router.patch("/update/:postId", upload.any(), updatePost);
 
 router.post(
   "/comment",

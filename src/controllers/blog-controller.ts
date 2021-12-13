@@ -60,7 +60,6 @@ export const createPost = async (
     next(err);
     return err;
   }
-
   const { title, blurb, month, day, year, numContent, numReferences } =
     req.body;
 
@@ -99,9 +98,9 @@ export const createPost = async (
       if (regex.test(file.fieldname)) {
         imgData.key = file.key;
         imgData.bucket = file.bucket;
+        contentObj.image = imgData;
       }
     }
-    contentObj.image = imgData;
 
     if (contentObj.type === "image" || contentObj.type === "imageUrl") {
       if (contentObj.alt === "") {
@@ -404,7 +403,6 @@ export const updatePost = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
   const postId = req.params.postId;
   if (req.userId !== ADMIN_ID) {
     const err = new HttpError("Invalid credentials.", 401);
@@ -449,9 +447,9 @@ export const updatePost = async (
       if (regex.test(file.fieldname)) {
         imgData.key = file.key;
         imgData.bucket = file.bucket;
+        contentObj.image = imgData;
       }
     }
-    contentObj.image = imgData;
 
     if (contentObj.type === "image" || contentObj.type === "imageUrl") {
       if (contentObj.alt === "") {
@@ -482,6 +480,12 @@ export const updatePost = async (
 
     if (contentObj.type === "image" && Object.keys(imgData).length === 0) {
       const err = new HttpError("Image specified but not provided.", 422);
+      next(err);
+      return err;
+    }
+
+    if (contentObj.type === "image" && contentObj.text !== "") {
+      const err = new HttpError("Image specified but text was provided.", 422);
       next(err);
       return err;
     }
@@ -554,11 +558,9 @@ export const updatePost = async (
   postToUpdate!.updatedMonth = month;
   postToUpdate!.updatedYear = year;
 
-  console.log(postToUpdate);
   try {
     await postToUpdate.save();
   } catch (error) {
-    console.log(error);
     const err = new HttpError("MongoDB could not save post.", 500);
     next(err);
     return err;
@@ -571,35 +573,40 @@ export const updatePost = async (
     }
   }
 
-  if (imageKeys.length > 0) {
-    aws.config.update({
-      secretAccessKey: AMZ_SECRET_ACCESS_KEY,
-      accessKeyId: AMZ_ACCESS_KEY,
-      region: "us-east-1",
-    });
-    const s3 = new aws.S3();
+  const deleteImage = async (keys: string[]) => {
+    if (keys.length > 0) {
+      aws.config.update({
+        secretAccessKey: AMZ_SECRET_ACCESS_KEY,
+        accessKeyId: AMZ_ACCESS_KEY,
+        region: "us-east-1",
+      });
+      const s3 = new aws.S3();
 
-    const deleteImage = async (imageKey: string) => {
-      const params = {
-        Bucket: AMZ_S3_BUCKET!,
-        Key: imageKey,
-      };
-      try {
-        await s3.deleteObject(params).promise();
-      } catch (error) {
-        console.log(error);
-        const err = new HttpError("Could not delete image on S3.", 500);
-        next(err);
-        return err;
+      for (const imgKey of keys) {
+        const params = {
+          Bucket: AMZ_S3_BUCKET!,
+          Key: imgKey,
+        };
+        try {
+          await s3.deleteObject(params).promise();
+        } catch (error) {
+          const err = new HttpError("Could not delete image on S3.", 500);
+          next(err);
+          return err;
+        }
       }
-    };
+    }
+  };
 
-    imageKeys.forEach((item) => {
-      deleteImage(item);
-    });
+  try {
+    await deleteImage(imageKeys);
+  } catch (error) {
+    const err = new HttpError("Could not delete image", 500);
+    next(err);
+    return err;
   }
 
-  res.status(204).json({ message: "Post updated." });
+  res.status(200).json({ message: "updated post" });
 };
 
 export const postComment = async (

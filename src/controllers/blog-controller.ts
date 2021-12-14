@@ -12,6 +12,7 @@ import { userModel as User } from "../models/user";
 import { adminModel as Admin } from "../models/admin";
 import { postModel as Post } from "../models/post";
 import socket from "../socket";
+import parseContent from '../helpers/parseContent';
 
 dotenv.config();
 const ADMIN_ID = process.env.ADMIN_ID;
@@ -30,12 +31,12 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-interface ImageData {
+export interface ImageData {
   key?: string;
   bucket?: string;
 }
 
-interface ContentObj {
+export interface ContentObj {
   type: "paragraph" | "image" | "imageUrl" | "code" | "heading";
   text?: string;
   alt?: string;
@@ -43,7 +44,7 @@ interface ContentObj {
   image?: ImageData;
 }
 
-interface RefObj {
+export interface RefObj {
   authors: string;
   date: string;
   title: string;
@@ -69,76 +70,11 @@ export const createPost = async (
     return err;
   }
 
-  const content: ContentObj[] = [];
+  // const content: ContentObj[] = [];
   const reqKeys = Object.keys(req.body);
   const filesArr: any | Express.Multer.File[] = req.files;
 
-  for (let i = 1; i <= Number(numContent); i++) {
-    const contentObj: ContentObj = <ContentObj>{};
-    const regex = new RegExp(i.toString());
-    const imgData = <ImageData>{};
-    for (const key of reqKeys) {
-      if (regex.test(key)) {
-        if (/types/.test(key)) {
-          contentObj.type = req.body[key];
-        }
-        if (/text/.test(key)) {
-          contentObj.text = req.body[key];
-        }
-        if (/alt/.test(key)) {
-          contentObj.alt = req.body[key];
-        }
-        if (/language/.test(key)) {
-          contentObj.language = req.body[key];
-        }
-      }
-    }
-
-    for (const file of filesArr) {
-      if (regex.test(file.fieldname)) {
-        imgData.key = file.key;
-        imgData.bucket = file.bucket;
-        contentObj.image = imgData;
-      }
-    }
-
-    if (contentObj.type === "image" || contentObj.type === "imageUrl") {
-      if (contentObj.alt === "") {
-        const err = new HttpError("Alternative text needed.", 422);
-        next(err);
-        return err;
-      }
-    }
-
-    if (
-      contentObj.type === "code" ||
-      contentObj.type === "heading" ||
-      contentObj.type === "paragraph" ||
-      contentObj.type === "imageUrl"
-    ) {
-      if (contentObj.text === "") {
-        const err = new HttpError("Text content missing.", 422);
-        next(err);
-        return err;
-      }
-    }
-
-    if (contentObj.type === "code" && contentObj.language === "") {
-      const err = new HttpError("Code language missing.", 422);
-      next(err);
-      return err;
-    }
-
-    if (contentObj.type === "image" && Object.keys(imgData).length === 0) {
-      const err = new HttpError("Image specified but not provided.", 422);
-      next(err);
-      return err;
-    }
-
-    if (Object.keys(contentObj).length > 0) {
-      content.push(contentObj);
-    }
-  }
+  const content = parseContent(numContent, reqKeys, filesArr, req.body, next);
 
   const references: RefObj[] = [];
   for (let i = 1; i <= Number(numReferences); i++) {
@@ -418,82 +354,11 @@ export const updatePost = async (
     return err;
   }
 
-  const content: ContentObj[] = [];
+
   const reqKeys = Object.keys(req.body);
   const filesArr: any | Express.Multer.File[] = req.files;
 
-  for (let i = 1; i <= Number(numContent); i++) {
-    const contentObj: ContentObj = <ContentObj>{};
-    const regex = new RegExp(i.toString());
-    const imgData = <ImageData>{};
-    for (const key of reqKeys) {
-      if (regex.test(key)) {
-        if (/types/.test(key)) {
-          contentObj.type = req.body[key];
-        }
-        if (/text/.test(key)) {
-          contentObj.text = req.body[key];
-        }
-        if (/alt/.test(key)) {
-          contentObj.alt = req.body[key];
-        }
-        if (/language/.test(key)) {
-          contentObj.language = req.body[key];
-        }
-      }
-    }
-
-    for (const file of filesArr) {
-      if (regex.test(file.fieldname)) {
-        imgData.key = file.key;
-        imgData.bucket = file.bucket;
-        contentObj.image = imgData;
-      }
-    }
-
-    if (contentObj.type === "image" || contentObj.type === "imageUrl") {
-      if (contentObj.alt === "") {
-        const err = new HttpError("Alternative text needed.", 422);
-        next(err);
-        return err;
-      }
-    }
-
-    if (
-      contentObj.type === "code" ||
-      contentObj.type === "heading" ||
-      contentObj.type === "paragraph" ||
-      contentObj.type === "imageUrl"
-    ) {
-      if (contentObj.text === "") {
-        const err = new HttpError("Text content missing.", 422);
-        next(err);
-        return err;
-      }
-    }
-
-    if (contentObj.type === "code" && contentObj.language === "") {
-      const err = new HttpError("Code language missing.", 422);
-      next(err);
-      return err;
-    }
-
-    if (contentObj.type === "image" && Object.keys(imgData).length === 0) {
-      const err = new HttpError("Image specified but not provided.", 422);
-      next(err);
-      return err;
-    }
-
-    if (contentObj.type === "image" && contentObj.text !== "") {
-      const err = new HttpError("Image specified but text was provided.", 422);
-      next(err);
-      return err;
-    }
-
-    if (Object.keys(contentObj).length > 0) {
-      content.push(contentObj);
-    }
-  }
+  const content = parseContent(numContent, reqKeys, filesArr, req.body, next);
 
   const references: RefObj[] = [];
   for (let i = 1; i <= Number(numReferences); i++) {

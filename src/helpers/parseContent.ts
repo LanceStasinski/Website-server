@@ -4,7 +4,7 @@ import HttpError from '../models/http-error';
 
 
 const parseContent = (
-  numContent: number,
+  numContent: number | string,
   reqKeys: string[],
   filesArr: any | Express.Multer.File[],
   body: any,

@@ -12,7 +12,8 @@ import { userModel as User } from "../models/user";
 import { adminModel as Admin } from "../models/admin";
 import { postModel as Post } from "../models/post";
 import socket from "../socket";
-import parseContent from '../helpers/parseContent';
+import parseContent from "../helpers/parseContent";
+import parseReferences from "../helpers/parseReferences";
 
 dotenv.config();
 const ADMIN_ID = process.env.ADMIN_ID;
@@ -70,36 +71,11 @@ export const createPost = async (
     return err;
   }
 
-  // const content: ContentObj[] = [];
   const reqKeys = Object.keys(req.body);
   const filesArr: any | Express.Multer.File[] = req.files;
 
   const content = parseContent(numContent, reqKeys, filesArr, req.body, next);
-
-  const references: RefObj[] = [];
-  for (let i = 1; i <= Number(numReferences); i++) {
-    const refObj: RefObj = <RefObj>{};
-    const regex = new RegExp(i.toString());
-    for (const key of reqKeys) {
-      if (regex.test(key)) {
-        if (/authors/.test(key)) {
-          refObj.authors = req.body[key];
-        }
-        if (/date/.test(key)) {
-          refObj.date = req.body[key];
-        }
-        if (/title/.test(key)) {
-          refObj.title = req.body[key];
-        }
-        if (/url/.test(key)) {
-          refObj.url = req.body[key];
-        }
-      }
-    }
-    if (Object.keys(refObj).length > 0) {
-      references.push(refObj);
-    }
-  }
+  const references = parseReferences(numReferences, reqKeys, req.body);
 
   const createdPost = new Post({
     title,
@@ -354,36 +330,11 @@ export const updatePost = async (
     return err;
   }
 
-
   const reqKeys = Object.keys(req.body);
   const filesArr: any | Express.Multer.File[] = req.files;
 
   const content = parseContent(numContent, reqKeys, filesArr, req.body, next);
-
-  const references: RefObj[] = [];
-  for (let i = 1; i <= Number(numReferences); i++) {
-    const refObj: RefObj = <RefObj>{};
-    const regex = new RegExp(i.toString());
-    for (const key of reqKeys) {
-      if (regex.test(key)) {
-        if (/authors/.test(key)) {
-          refObj.authors = req.body[key];
-        }
-        if (/date/.test(key)) {
-          refObj.date = req.body[key];
-        }
-        if (/title/.test(key)) {
-          refObj.title = req.body[key];
-        }
-        if (/url/.test(key)) {
-          refObj.url = req.body[key];
-        }
-      }
-    }
-    if (Object.keys(refObj).length > 0) {
-      references.push(refObj);
-    }
-  }
+  const references = parseReferences(numReferences, reqKeys, req.body);
 
   let postToUpdate;
   try {

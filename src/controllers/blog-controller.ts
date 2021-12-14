@@ -197,7 +197,20 @@ export const getPost = async (
       content.text = url;
     }
   });
-  res.status(200).json({ post });
+
+  let posts;
+  try {
+    posts = await Post.find(
+      {},
+      { title: 1, _id: 1 }
+    );
+  } catch (error) {
+    const err = new HttpError('Cannot load post. Please try again.', 500);
+    next(err);
+    return err;
+  }
+
+  res.status(200).json({ post, posts });
 };
 
 export const deletePost = async (
@@ -422,7 +435,7 @@ export const updatePost = async (
     return err;
   }
 
-  res.status(200).json({ message: "updated post" });
+  res.status(200).json({ message: "Updated post." });
 };
 
 export const postComment = async (

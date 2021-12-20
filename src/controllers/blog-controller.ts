@@ -536,7 +536,6 @@ export const postComment = async (
     <a href="${CLIENT_URL}/blog/${post._id.toString()}">View the comment</a>`,
     });
   } catch (error) {
-    console.log(error);
     const err = new HttpError("Could not add comment.", 500);
     next(err);
     return err;

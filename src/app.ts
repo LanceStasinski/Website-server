@@ -10,6 +10,7 @@ import cors from "cors";
 import HttpError from "./models/http-error";
 import authRoutes from "./routes/auth-routes";
 import blogRoutes from "./routes/blog-routes";
+import contactRoutes from "./routes/contact-routes";
 import socket from "./socket";
 
 dotenv.config();
@@ -36,6 +37,7 @@ app.use(cors()); //use CORS packages to setup CORS
 
 app.use("/api/auth", authRoutes);
 app.use("/api/blog", blogRoutes);
+app.use("/api/contact", contactRoutes);
 
 app.use((req, res, next) => {
   throw new HttpError("Could not find this route.", 404);

@@ -1,7 +1,6 @@
-import { NextFunction } from 'express';
+import { NextFunction } from "express";
 import { ContentObj, ImageData } from "../controllers/blog-controller";
-import HttpError from '../models/http-error';
-
+import HttpError from "../models/http-error";
 
 const parseContent = (
   numContent: number | string,
@@ -26,6 +25,9 @@ const parseContent = (
         if (/alt/.test(key)) {
           contentObj.alt = body[key];
         }
+        if (/caption/.test(key)) {
+          contentObj.caption = body[key];
+        }
         if (/language/.test(key)) {
           contentObj.language = body[key];
         }
@@ -43,6 +45,11 @@ const parseContent = (
     if (contentObj.type === "image" || contentObj.type === "imageUrl") {
       if (contentObj.alt === "") {
         const err = new HttpError("Alternative text needed.", 422);
+        next(err);
+        return err;
+      }
+      if (contentObj.caption === "") {
+        const err = new HttpError("Image caption needed.", 422);
         next(err);
         return err;
       }

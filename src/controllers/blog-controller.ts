@@ -41,6 +41,7 @@ export interface ContentObj {
   type: "paragraph" | "image" | "imageUrl" | "code" | "heading";
   text?: string;
   alt?: string;
+  caption?: string;
   language?: string;
   image?: ImageData;
 }
@@ -62,11 +63,29 @@ export const createPost = async (
     next(err);
     return err;
   }
-  const { title, blurb, month, day, year, numContent, numReferences } =
-    req.body;
+  const {
+    title,
+    blurb,
+    tags,
+    headImg,
+    headImgCaption,
+    headImgAlt,
+    month,
+    day,
+    year,
+    numContent,
+    numReferences,
+  } = req.body;
 
-  if (title === "" || blurb === "") {
-    const err = new HttpError("Title and/or blurb missing.", 422);
+  if (
+    title === "" ||
+    blurb === "" ||
+    tags === "" ||
+    headImg === "" ||
+    headImgCaption === "" ||
+    headImgAlt === ""
+  ) {
+    const err = new HttpError("Heading information missing.", 422);
     next(err);
     return err;
   }
@@ -80,6 +99,10 @@ export const createPost = async (
   const createdPost = new Post({
     title,
     blurb,
+    tags,
+    headImg,
+    headImgCaption,
+    headImgAlt,
     month,
     day,
     year,
@@ -132,7 +155,16 @@ export const getPostHeaders = async (
   try {
     posts = await Post.find(
       {},
-      { title: 1, blurb: 1, month: 1, day: 1, year: 1 }
+      {
+        title: 1,
+        blurb: 1,
+        month: 1,
+        day: 1,
+        year: 1,
+        tags: 1,
+        headImg: 1,
+        headImgAlt: 1,
+      }
     );
   } catch (error) {
     const err = new HttpError(
@@ -200,12 +232,9 @@ export const getPost = async (
 
   let posts;
   try {
-    posts = await Post.find(
-      {},
-      { title: 1, _id: 1 }
-    );
+    posts = await Post.find({}, { title: 1, _id: 1 });
   } catch (error) {
-    const err = new HttpError('Cannot load post. Please try again.', 500);
+    const err = new HttpError("Cannot load post. Please try again.", 500);
     next(err);
     return err;
   }
@@ -334,11 +363,29 @@ export const updatePost = async (
     next(err);
     return err;
   }
-  const { title, blurb, day, month, year, numContent, numReferences } =
-    req.body;
+  const {
+    title,
+    blurb,
+    tags,
+    headImg,
+    headImgCaption,
+    headImgAlt,
+    day,
+    month,
+    year,
+    numContent,
+    numReferences,
+  } = req.body;
 
-  if (title === "" || blurb === "") {
-    const err = new HttpError("Title and/or blurb missing.", 422);
+  if (
+    title === "" ||
+    blurb === "" ||
+    tags === "" ||
+    headImg === "" ||
+    headImgCaption === "" ||
+    headImgAlt === ""
+  ) {
+    const err = new HttpError("Heading information missing.", 422);
     next(err);
     return err;
   }
@@ -366,11 +413,16 @@ export const updatePost = async (
 
   postToUpdate!.title = title;
   postToUpdate!.blurb = blurb;
+  postToUpdate!.tags = tags;
+  postToUpdate!.headImg = headImg;
+  postToUpdate!.headImgCaption = headImgCaption;
+  postToUpdate!.headImgAlt = headImgAlt;
   postToUpdate!.content = content as [
     {
       type: string;
       text?: string;
       alt?: string;
+      caption?: string;
       language?: string;
       image?: { key?: string; bucket?: string };
     }

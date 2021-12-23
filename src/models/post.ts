@@ -3,6 +3,10 @@ import mongoose, { Schema, model } from "mongoose";
 const postsSchema = new Schema({
   title: { type: String, required: true },
   blurb: { type: String, required: true },
+  tags: { type: String, required: true },
+  headImg: { type: String, required: true },
+  headImgCaption: { type: String, required: true },
+  headImgAlt: { type: String, required: true },
   month: { type: String, required: true },
   day: { type: String, required: true },
   year: { type: String, required: true },
@@ -38,6 +42,10 @@ const postsSchema = new Schema({
 interface PostsDoc {
   title: string;
   blurb: string;
+  tags: string;
+  headImg: string;
+  headImgCaption: string;
+  headImgAlt: string;
   month: string;
   day: string;
   year: string;

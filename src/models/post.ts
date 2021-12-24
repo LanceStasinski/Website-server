@@ -15,6 +15,7 @@ const postsSchema = new Schema({
       type: { type: String, required: true },
       text: { type: String, required: false },
       alt: { type: String, required: false },
+      caption: { type: String, required: false },
       language: { type: String, required: false },
       image: {
         key: { type: String, required: false },
@@ -54,6 +55,7 @@ interface PostsDoc {
       type: string;
       text?: string;
       alt?: string;
+      caption?: string;
       language?: string;
       image?: {
         key?: string;

@@ -137,7 +137,6 @@ export const createPost = async (
     await admin.save({ session: sess });
     await sess.commitTransaction();
   } catch (error) {
-    console.log(error);
     const err = new HttpError("Could not save post.", 500);
     next(err);
     return err;
@@ -364,8 +363,6 @@ export const updatePost = async (
     return err;
   }
 
-  console.log(req.body)
-
   const {
     title,
     blurb,
@@ -446,7 +443,6 @@ export const updatePost = async (
     await postToUpdate.save();
   } catch (error) {
     const err = new HttpError("MongoDB could not save post.", 500);
-    console.log(error)
     next(err);
     return err;
   }
@@ -569,7 +565,6 @@ export const postComment = async (
     await post.save({ session: sess });
     await sess.commitTransaction();
   } catch (error) {
-    console.log(error);
     const err = new HttpError("Could not save comment.", 500);
     next(err);
     return err;

@@ -8,9 +8,9 @@ const parseReferences = (
   const references: RefObj[] = [];
   for (let i = 1; i <= Number(numReferences); i++) {
     const refObj: RefObj = <RefObj>{};
-    const regex = new RegExp(i.toString());
     for (const key of reqKeys) {
-      if (regex.test(key)) {
+      const matchedNumber = key.match(/\d+/);
+      if (matchedNumber && matchedNumber[0] === i.toString()) {
         if (/authors/.test(key)) {
           refObj.authors = body[key];
         }

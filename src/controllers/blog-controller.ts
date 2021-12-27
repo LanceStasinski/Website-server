@@ -363,6 +363,9 @@ export const updatePost = async (
     next(err);
     return err;
   }
+
+  console.log(req.body)
+
   const {
     title,
     blurb,
@@ -443,6 +446,7 @@ export const updatePost = async (
     await postToUpdate.save();
   } catch (error) {
     const err = new HttpError("MongoDB could not save post.", 500);
+    console.log(error)
     next(err);
     return err;
   }

@@ -79,7 +79,7 @@ export const signUp = async (
       },
       JWT_KEY,
       {
-        expiresIn: "1hr",
+        expiresIn: "2hr",
       }
     );
   } catch (error) {
@@ -130,7 +130,7 @@ export const login = async (
         { userId: admin.id, username: admin.username },
         JWT_KEY,
         {
-          expiresIn: "1hr",
+          expiresIn: "2hr",
         }
       );
     } catch (error) {
@@ -179,7 +179,7 @@ export const login = async (
         { userId: existingUser.id, username: existingUser.username },
         JWT_KEY,
         {
-          expiresIn: "1hr",
+          expiresIn: "2hr",
         }
       );
     } catch (error) {

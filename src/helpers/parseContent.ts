@@ -12,10 +12,10 @@ const parseContent = (
   const content: ContentObj[] = [];
   for (let i = 1; i <= Number(numContent); i++) {
     const contentObj: ContentObj = <ContentObj>{};
-    const regex = new RegExp(i.toString());
     const imgData = <ImageData>{};
     for (const key of reqKeys) {
-      if (regex.test(key)) {
+      const matchedNumber = key.match(/\d+/);
+      if (matchedNumber && matchedNumber[0] === i.toString()) {
         if (/types/.test(key)) {
           contentObj.type = body[key];
         }
@@ -35,7 +35,8 @@ const parseContent = (
     }
 
     for (const file of filesArr) {
-      if (regex.test(file.fieldname)) {
+      const matchedNumber = file.fieldname.match(/\d+/);
+      if (matchedNumber && matchedNumber[0] === i.toString()) {
         imgData.key = file.key;
         imgData.bucket = file.bucket;
         contentObj.image = imgData;

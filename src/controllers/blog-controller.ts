@@ -191,7 +191,7 @@ export const getPost = async (
   const postId = req.params.postId;
   let post;
   try {
-    post = await Post.findById(postId, "-admin").populate("comments");
+    post = await Post.findOne({title: postId}, "-admin").populate("comments");
   } catch (error) {
     const err = new HttpError(
       "Could not get post, please try again later.",

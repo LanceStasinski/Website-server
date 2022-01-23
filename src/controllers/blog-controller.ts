@@ -12,8 +12,8 @@ import { userModel as User } from "../models/user";
 import { adminModel as Admin } from "../models/admin";
 import { postModel as Post } from "../models/post";
 import socket from "../socket";
-import parseContent from "../helpers/parseContent";
-import parseReferences from "../helpers/parseReferences";
+import parseContent from "../helpers/blog/parseContent";
+import parseReferences from "../helpers/blog/parseReferences";
 
 dotenv.config();
 const ADMIN_ID = process.env.ADMIN_ID;

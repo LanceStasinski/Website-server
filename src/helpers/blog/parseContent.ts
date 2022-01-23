@@ -1,6 +1,6 @@
 import { NextFunction } from "express";
-import { ContentObj, ImageData } from "../controllers/blog-controller";
-import HttpError from "../models/http-error";
+import { ContentObj, ImageData } from "../../controllers/blog-controller";
+import HttpError from "../../models/http-error";
 
 const parseContent = (
   numContent: number | string,

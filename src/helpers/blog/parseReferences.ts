@@ -1,4 +1,4 @@
-import { RefObj } from "../controllers/blog-controller";
+import { RefObj } from "../../controllers/blog-controller";
 
 const parseReferences = (
   numReferences: number | string,

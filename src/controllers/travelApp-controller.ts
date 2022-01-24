@@ -8,6 +8,10 @@ import {
 } from "../helpers/travelApp/requestWeatherInfo";
 import requestImage from "../helpers/travelApp/requestImage";
 import requestCountryInfo from "../helpers/travelApp/requestCountryInfo";
+import {
+  updateWeatherForecast,
+  updateWeatherCurrent,
+} from "./../helpers/travelApp/updateWeather";
 
 dotenv.config();
 const GEOUSER = process.env.GEO_USERNAME;
@@ -73,6 +77,26 @@ export const postTripData = async (
         lng,
       };
     }
+  } catch (error) {
+    console.log(error);
+  }
+  res.send(trip);
+};
+
+export const updateTripData = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { lat, lng } = req.body;
+  let trip;
+  try {
+    const current = await updateWeatherCurrent(lat, lng, WEATHER_KEY!);
+    const forecast = await updateWeatherForecast(lat, lng, WEATHER_KEY!);
+    trip = {
+      current,
+      forecast,
+    };
   } catch (error) {
     console.log(error);
   }

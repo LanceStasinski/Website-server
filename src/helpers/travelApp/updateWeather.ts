@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-const getWeatherRoute = async (
+const updateWeatherRoute = async (
   lat: string | number,
   lng: string | number,
   key: string,
@@ -17,21 +17,21 @@ const getWeatherRoute = async (
   }
 };
 
-export const requestWeatherCurrent = async (
+export const updateWeatherCurrent = async (
   lat: string | number,
   lng: string | number,
   key: string
 ) => {
   const forecastType = "current";
   try {
-    const currentForcast: any = await getWeatherRoute(
+    const currentForecast: any = await updateWeatherRoute(
       lat,
       lng,
       key,
       forecastType
     );
-    const { datetime, temp, weather } = currentForcast.data[0];
-    const day = {
+    const { datetime, temp, weather } = currentForecast.data[0];
+    let day = {
       date: datetime,
       temp,
       sky: weather.description,
@@ -43,15 +43,15 @@ export const requestWeatherCurrent = async (
   }
 };
 
-export const requestWeatherForecast = async (
+export const updateWeatherForecast = async (
   lat: string | number,
   lng: string | number,
   key: string
 ) => {
-  let tripWeather = [];
+  const tripWeather = [];
   const forecastType = "forecast/daily";
   try {
-    const weather: any = await getWeatherRoute(lat, lng, key, forecastType);
+    const weather: any = await updateWeatherRoute(lat, lng, key, forecastType);
     const weatherData = weather.data;
     for (const data of weatherData) {
       const day = {
@@ -62,8 +62,8 @@ export const requestWeatherForecast = async (
       };
       tripWeather.push(day);
     }
+    return tripWeather;
   } catch (error) {
     console.log(error);
   }
-  return tripWeather;
 };

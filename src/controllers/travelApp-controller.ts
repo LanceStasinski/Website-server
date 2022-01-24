@@ -7,6 +7,7 @@ import {
   requestWeatherForecast,
 } from "../helpers/travelApp/requestWeatherInfo";
 import requestImage from "../helpers/travelApp/requestImage";
+import requestCountryInfo from "../helpers/travelApp/requestCountryInfo";
 
 dotenv.config();
 const GEOUSER = process.env.GEO_USERNAME;
@@ -47,8 +48,33 @@ export const postTripData = async (
         adminName1,
         IMAGE_KEY!
       );
+      const countryInfo: any = requestCountryInfo(countryCode);
+      trip = {
+        message: "OK",
+        arrival,
+        departure,
+        daysAway,
+        destination,
+        current: currentWeather,
+        forecast: forecastWeather,
+        imageUrl: image[1],
+        imageTag: image[0],
+        countryName: countryInfo[0].name.official,
+        capital: countryInfo[0].capital[0],
+        currency:
+          countryInfo[0].currencies[Object.keys(countryInfo[0].currencies)[0]]
+            .name,
+        flag: countryInfo[0].flags.png,
+        language:
+          countryInfo[0].languages[Object.keys(countryInfo[0].languages)[0]],
+        region: countryInfo[0].subregion,
+        tripNum,
+        lat,
+        lng,
+      };
     }
   } catch (error) {
     console.log(error);
   }
+  res.send(trip);
 };

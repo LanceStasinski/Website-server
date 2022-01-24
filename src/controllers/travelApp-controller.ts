@@ -23,7 +23,8 @@ export const postTripData = async (
   try {
     const coords: any = await requestGeoInfo(destination, GEOUSER!);
     const { totalResults, geonames } = coords;
-    const { lat, lng, countryCode } = geonames[0];
+    const { lat, lng, countryCode, name, countryName, adminName1 } =
+      geonames[0];
     if (totalResults.Count === 0) {
       trip = {
         message: "Location not recognized",
@@ -38,6 +39,13 @@ export const postTripData = async (
         lat,
         lng,
         WEATHER_KEY!
+      );
+      const image = await requestImage(
+        countryCode,
+        name,
+        countryName,
+        adminName1,
+        IMAGE_KEY!
       );
     }
   } catch (error) {

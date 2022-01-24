@@ -12,14 +12,14 @@ const getImageRoute = async (key: string, locationParameters: string) => {
   }
 };
 
-const getImageNotUSA = async (coords: any, key: string) => {
+const getImageNotUSA = async (name: string, countryName: string, key: string) => {
   let image;
   let imageData = [];
-  let locationParameters = `${coords.geonames[0].name}+${coords.geonames[0].countryName}`;
+  let locationParameters = `${name}+${countryName}`;
   try {
     const city: any = await getImageRoute(key, locationParameters);
     if (!city || city.total == 0) {
-      locationParameters = `${coords.geonames[0].countryName}`;
+      locationParameters = `${countryName}`;
       const country: any = await getImageRoute(key, locationParameters);
       if (!country || country.total == 0) {
         const map = await getImageRoute(key, "map");
@@ -39,17 +39,22 @@ const getImageNotUSA = async (coords: any, key: string) => {
   return imageData;
 };
 
-const getImageUSA = async (coords: any, key: string) => {
-  let locationParameters = `${coords.geonames[0].name}+${coords.geonames[0].adminName1}`;
+const getImageUSA = async (
+  name: string,
+  adminName1: string,
+  countryName: string,
+  key: string
+) => {
+  let locationParameters = `${name}+${adminName1}`;
   let image;
   let imageData = [];
   try {
     const city: any = await getImageRoute(key, locationParameters);
     if (city.total == 0) {
-      locationParameters = `${coords.geonames[0].adminName1}`;
+      locationParameters = `${adminName1}`;
       const state: any = await getImageRoute(key, locationParameters);
       if (state.total == 0 && city.total == 0) {
-        locationParameters = `${coords.geonames[0].countryName}`;
+        locationParameters = `${countryName}`;
         const country: any = await getImageRoute(key, locationParameters);
         image = country;
       } else {
@@ -66,13 +71,19 @@ const getImageUSA = async (coords: any, key: string) => {
   return imageData;
 };
 
-const requestImage = async (coords: any, key: string) => {
+const requestImage = async (
+  countryCode: string,
+  name: string,
+  countryName: string,
+  adminName1: string,
+  key: string
+) => {
   let imageArray = [];
   try {
-    if (coords.geonames[0].countryCode == "US") {
-      imageArray = await getImageUSA(coords, key);
+    if (countryCode == "US") {
+      imageArray = await getImageUSA(name, adminName1, countryName, key);
     } else {
-      imageArray = await getImageNotUSA(coords, key);
+      imageArray = await getImageNotUSA(name, countryName, key);
     }
   } catch (error) {
     console.log(error);

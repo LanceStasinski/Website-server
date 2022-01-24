@@ -66,7 +66,7 @@ const getImageUSA = async (coords: any, key: string) => {
   return imageData;
 };
 
-export const requestImage = async (coords: any, key: string) => {
+const requestImage = async (coords: any, key: string) => {
   let imageArray = [];
   try {
     if (coords.geonames[0].countryCode == "US") {
@@ -80,3 +80,5 @@ export const requestImage = async (coords: any, key: string) => {
 
   return imageArray;
 };
+
+export default requestImage;

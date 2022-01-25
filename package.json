@@ -13,8 +13,6 @@
     "build": "tsc --project ./",
     "test": "mocha -r ts-node/register src/test/**/*.test.ts --timeout 10000"
   },
-  "type": "module",
-  "engines": {},
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/bcryptjs": "^2.4.2",

@@ -12,7 +12,11 @@ const getImageRoute = async (key: string, locationParameters: string) => {
   }
 };
 
-const getImageNotUSA = async (name: string, countryName: string, key: string) => {
+const getImageNotUSA = async (
+  name: string,
+  countryName: string,
+  key: string
+) => {
   let image;
   let imageData = [];
   let locationParameters = `${name}+${countryName}`;

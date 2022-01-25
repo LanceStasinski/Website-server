@@ -2,7 +2,7 @@
   "name": "website-server",
   "version": "1.0.0",
   "description": "REST API for my personal website",
-  "main": "index.js",
+  "exports": "./index.js",
   "repository": "https://github.com/LanceStasinski/Website-server",
   "author": "LanceStasinski <lance.stasinski@gmail.com>",
   "license": "MIT",
@@ -13,6 +13,8 @@
     "build": "tsc --project ./",
     "test": "mocha -r ts-node/register src/test/**/*.test.ts --timeout 10000"
   },
+  "type": "module",
+  "engines": {},
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/bcryptjs": "^2.4.2",

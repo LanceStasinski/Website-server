@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import axios from "axios";
 
 const getWeatherRoute = async (
   lat: string | number,
@@ -6,11 +6,10 @@ const getWeatherRoute = async (
   key: string,
   forecastType: string
 ) => {
-  const response = await fetch(
-    `https://api.weatherbit.io/v2.0/${forecastType}?lat=${lat}&lon=${lng}&units=I&key=${key}`
-  );
   try {
-    const weather = await response.json();
+    const weather = await axios.get(
+      `https://api.weatherbit.io/v2.0/${forecastType}?lat=${lat}&lon=${lng}&units=I&key=${key}`
+    );
     return weather;
   } catch (error) {
     console.log("error", error);

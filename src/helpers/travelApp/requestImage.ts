@@ -1,11 +1,10 @@
-import fetch from "node-fetch";
+import axios from "axios";
 
 const getImageRoute = async (key: string, locationParameters: string) => {
-  const response = await fetch(
-    `https://pixabay.com/api/?key=${key}&q=${locationParameters}&image_type=photo&orientation=horizontal&category=places&safesearch=true`
-  );
   try {
-    const imageInfo = await response.json();
+    const imageInfo = await axios.get(
+      `https://pixabay.com/api/?key=${key}&q=${locationParameters}&image_type=photo&orientation=horizontal&category=places&safesearch=true`
+    );
     return imageInfo;
   } catch (error) {
     console.log("error", error);

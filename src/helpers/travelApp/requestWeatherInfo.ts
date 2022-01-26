@@ -7,10 +7,10 @@ const getWeatherRoute = async (
   forecastType: string
 ) => {
   try {
-    const weather = await axios.get(
+    const response = await axios.get(
       `https://api.weatherbit.io/v2.0/${forecastType}?lat=${lat}&lon=${lng}&units=I&key=${key}`
     );
-    return weather;
+    return response.data;
   } catch (error) {
     console.log("error", error);
   }

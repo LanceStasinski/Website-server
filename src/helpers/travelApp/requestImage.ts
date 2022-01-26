@@ -1,12 +1,11 @@
-import fetch from "node-fetch";
+import axios from "axios";
 
 const getImageRoute = async (key: string, locationParameters: string) => {
-  const response = await fetch(
-    `https://pixabay.com/api/?key=${key}&q=${locationParameters}&image_type=photo&orientation=horizontal&category=places&safesearch=true`
-  );
   try {
-    const imageInfo = await response.json();
-    return imageInfo;
+    const response = await axios.get(
+      `https://pixabay.com/api/?key=${key}&q=${locationParameters}&image_type=photo&orientation=horizontal&category=places&safesearch=true&page=1&per_page=3`
+    );
+    return response.data;
   } catch (error) {
     console.log("error", error);
   }
@@ -54,10 +53,10 @@ const getImageUSA = async (
   let imageData = [];
   try {
     const city: any = await getImageRoute(key, locationParameters);
-    if (city.total == 0) {
+    if (city.total === 0) {
       locationParameters = `${adminName1}`;
       const state: any = await getImageRoute(key, locationParameters);
-      if (state.total == 0 && city.total == 0) {
+      if (state.total === 0 && city.total === 0) {
         locationParameters = `${countryName}`;
         const country: any = await getImageRoute(key, locationParameters);
         image = country;
@@ -82,7 +81,7 @@ const requestImage = async (
   adminName1: string,
   key: string
 ) => {
-  let imageArray = [];
+  let imageArray;
   try {
     if (countryCode == "US") {
       imageArray = await getImageUSA(name, adminName1, countryName, key);

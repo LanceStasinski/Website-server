@@ -37,12 +37,13 @@ app.use(cors()); //use CORS packages to setup CORS
 //   next();
 // });
 
+
 app.use("/api/auth", authRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/travel-app", travelAppRoutes);
-app.use("/travel-app", express.static("dist"));
+app.use("/travel-app", express.static(path.join(__dirname, "public","travel-app")));
 
 app.use((req, res, next) => {
   throw new HttpError("Could not find this route.", 404);

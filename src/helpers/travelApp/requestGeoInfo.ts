@@ -1,13 +1,12 @@
-import fetch from "node-fetch";
+import axios from "axios";
 
 //get lat/long of destination
 const requestGeoInfo = async (destination: string, key: string) => {
-  const response = await fetch(
-    `http://api.geonames.org/searchJSON?q=${destination}&maxRows=1&username=${key}`
-  );
   try {
-    const location = await response.json();
-    return location;
+    const response = await axios.get(
+      `http://api.geonames.org/searchJSON?q=${destination}&maxRows=1&username=${key}`
+    );
+    return response.data;
   } catch (error) {
     console.log("error", error);
   }

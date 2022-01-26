@@ -13,6 +13,7 @@ import blogRoutes from "./routes/blog-routes";
 import contactRoutes from "./routes/contact-routes";
 import resumeRoutes from "./routes/resume-routes";
 import travelAppRoutes from "./routes/travelApp-routes";
+import nlpAppRoutes from "./routes/nlpApp-routes";
 import socket from "./socket";
 
 dotenv.config();
@@ -37,13 +38,20 @@ app.use(cors()); //use CORS packages to setup CORS
 //   next();
 // });
 
-
 app.use("/api/auth", authRoutes);
 app.use("/api/blog", blogRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/travel-app", travelAppRoutes);
-app.use("/travel-app", express.static(path.join(__dirname, "public","travel-app")));
+app.use("/api/sentiment-analysis-app", nlpAppRoutes);
+app.use(
+  "/travel-app",
+  express.static(path.join(__dirname, "public", "travel-app"))
+);
+app.use(
+  "/sentiment-analysis-app",
+  express.static(path.join(__dirname, "public", "nlp-app"))
+);
 
 app.use((req, res, next) => {
   throw new HttpError("Could not find this route.", 404);

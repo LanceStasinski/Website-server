@@ -52,7 +52,6 @@ export const postTripData = async (
         adminName1,
         IMAGE_KEY!
       );
-      console.log(image)
       const countryInfo: any = await requestCountryInfo(countryCode);
       trip = {
         message: "OK",
@@ -62,7 +61,7 @@ export const postTripData = async (
         destination,
         current: currentWeather,
         forecast: forecastWeather,
-        imageUrl: image![1],
+        imageURL: image![1],
         imageTag: image![0],
         countryName: countryInfo[0].name.official,
         capital: countryInfo[0].capital[0],

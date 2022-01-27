@@ -72,7 +72,7 @@ export const signUp = async (
 
   let token;
   try {
-    token = await jwt.sign(
+    token = jwt.sign(
       {
         userId: newUser.id,
         username: newUser.username,

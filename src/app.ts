@@ -52,6 +52,10 @@ app.use(
   "/sentiment-analysis-app",
   express.static(path.join(__dirname, "public", "nlp-app"))
 );
+app.use(
+  "/weather-journal-app",
+  express.static(path.join(__dirname, "public", "weatherJournal-app"))
+);
 
 app.use((req, res, next) => {
   throw new HttpError("Could not find this route.", 404);

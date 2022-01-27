@@ -1,6 +1,5 @@
 // OpenWeatherMap credentials
 let baseURL = "http://api.openweathermap.org/data/2.5/weather?zip=";
-let apiKey = ",us&appid=3fdaddc8476ec856adc0078f023adbd7";
 
 //POST data to local server
 const postData = async (url = "", data = {}) => {

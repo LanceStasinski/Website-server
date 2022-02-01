@@ -126,7 +126,7 @@ export const login = async (
     let token;
 
     try {
-      token = await jwt.sign(
+      token = jwt.sign(
         { userId: admin.id, username: admin.username },
         JWT_KEY,
         {

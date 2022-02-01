@@ -3,9 +3,11 @@ import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 import { weatherEntryModel as Entry } from "./../models/weatherEntry";
 import { weatherUserModel as User } from "./../models/weatherUser";
+import HttpError from "../models/http-error";
 
 dotenv.config;
 const WEATHERMAP_KEY = process.env.WEATHERMAP_KEY;
@@ -16,34 +18,63 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { username } = req.body;
+  const { username, password } = req.body;
   let user;
-  let entries;
   let existingUser;
   try {
     existingUser = await User.findOne({ username: username });
   } catch (error) {
-    console.log(error);
+    const err = new HttpError("Error getting user data.", 500);
+    next(err);
+    return err;
   }
 
   if (!existingUser) {
+    let hashedPassword;
+    try {
+      hashedPassword = await bcrypt.hash(password, 12);
+    } catch (error) {
+      return next(
+        new HttpError("Signing up failed, please try again later.", 500)
+      );
+    }
     const newUser = new User({
       username,
+      password: hashedPassword,
     });
     try {
       await newUser.save();
+      user = newUser;
     } catch (error) {
-      console.log(error);
+      const err = new HttpError("Error adding user.", 500);
+      next(err);
+      return err;
     }
-    entries = [];
-    user = newUser;
   } else {
+    let isValidPassword = false;
     try {
-      entries = await Entry.find({ creatorId: existingUser.id });
-      user = existingUser;
+      isValidPassword = await bcrypt.compare(password, existingUser.password);
     } catch (error) {
-      console.log(error);
+      const err = new HttpError("Validation error. Please try again.", 500);
+      next(err);
+      return err;
     }
+
+    if (!isValidPassword) {
+      const err = new HttpError("Invalid credentials.", 403);
+      next(err);
+      return err;
+    }
+
+    user = existingUser;
+    // try {
+    //   entries = await Entry.find({ creatorId: existingUser.id });
+    //   user = existingUser;
+    // } catch (error) {
+    //   const err = new HttpError("Error getting entries.", 500);
+    //   next(err);
+    //   return err;
+    // }
   }
 
   let token;
@@ -56,9 +87,11 @@ export const login = async (
       { expiresIn: "2hr" }
     );
   } catch (error) {
-    console.log(error);
+    const err = new HttpError("Error setting permissions.", 500);
+    next(err);
+    return err;
   }
-  res.status(201).json({userId: user?.id, entries})
+  res.status(200).json({ userId: user?.id, token, username });
 };
 
 export const postEntry = async (

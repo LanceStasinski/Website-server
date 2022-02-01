@@ -14,6 +14,7 @@ import contactRoutes from "./routes/contact-routes";
 import resumeRoutes from "./routes/resume-routes";
 import travelAppRoutes from "./routes/travelApp-routes";
 import nlpAppRoutes from "./routes/nlpApp-routes";
+import weatherJournalRoutes from "./routes/weatherJournal-routes";
 import socket from "./socket";
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/travel-app", travelAppRoutes);
 app.use("/api/sentiment-analysis-app", nlpAppRoutes);
+app.use("/api/weather-journal-app", weatherJournalRoutes);
 app.use(
   "/travel-app",
   express.static(path.join(__dirname, "public", "travel-app"))

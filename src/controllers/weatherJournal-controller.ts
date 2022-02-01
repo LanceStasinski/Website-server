@@ -1,3 +1,4 @@
+import { validationResult } from 'express-validator';
 import axios from "axios";
 import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
@@ -18,6 +19,13 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new HttpError('Invalid inputs. Please try again.', 422);
+    next(err);
+    return err;
+  }
+
   const { username, password } = req.body;
   let user;
   let existingUser;

@@ -1,4 +1,4 @@
-import { validationResult } from 'express-validator';
+import { validationResult } from "express-validator";
 import axios from "axios";
 import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
@@ -21,7 +21,7 @@ export const login = async (
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const err = new HttpError('Invalid inputs. Please try again.', 422);
+    const err = new HttpError("Invalid inputs. Please try again.", 422);
     next(err);
     return err;
   }
@@ -49,6 +49,8 @@ export const login = async (
     const newUser = new User({
       username,
       password: hashedPassword,
+      unitPreference: "imperial",
+      zipCode: "no zip",
     });
     try {
       await newUser.save();
@@ -69,7 +71,10 @@ export const login = async (
     }
 
     if (!isValidPassword) {
-      const err = new HttpError("Invalid credentials.", 403);
+      const err = new HttpError(
+        "Incorrect password. Please try again or create a new profile.",
+        403
+      );
       next(err);
       return err;
     }
@@ -99,7 +104,56 @@ export const login = async (
     next(err);
     return err;
   }
-  res.status(200).json({ userId: user?.id, token, username });
+  res.status(200).json({
+    userId: user?.id,
+    token,
+    username,
+    unitPreference: user.unitPreference,
+    zipCode: user.zipCode,
+  });
+};
+
+export const updatePreferences = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new HttpError("Invalid inputs. Please try again.", 422);
+    next(err);
+    return err;
+  }
+
+  const { unitPreference, zipCode } = req.body;
+
+  let user;
+  try {
+    user = await User.findById(req.userId);
+  } catch (error) {
+    const err = new HttpError("Database error. Please try again.", 500);
+    next(err);
+    return err;
+  }
+
+  if (!user) {
+    const err = new HttpError("Could not find user.", 400);
+    next(err);
+    return err;
+  }
+
+  user.zipCode = zipCode;
+  user.unitPreference = unitPreference;
+
+  try {
+    await user.save();
+  } catch (error) {
+    const err = new HttpError("Could not save preferences.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(200).send({ zipCode, unitPreference });
 };
 
 export const postEntry = async (
@@ -107,47 +161,53 @@ export const postEntry = async (
   res: Response,
   next: NextFunction
 ) => {
-  let weather;
+  let weatherData;
   try {
     const response = await axios(
       `http://api.openweathermap.org/data/2.5/weather?zip=${req.body.zip}${WEATHERMAP_KEY}`
     );
-    weather = response.data;
+    console.log(response.data);
+    const { weather, main, wind, name } = response.data;
   } catch (error) {
-    console.log(error);
+    const err = new HttpError(
+      "Issue getting weather data. Pleae try again.",
+      500
+    );
+    next(err);
+    return err;
   }
 
-  let user: any;
-  try {
-    user = await User.findById(req.userId);
-  } catch (error) {
-    console.log(error);
-  }
+  // let user: any;
+  // try {
+  //   user = await User.findById(req.userId);
+  // } catch (error) {
+  //   console.log(error);
+  // }
 
-  if (!user) {
-    console.log("No user found");
-  }
+  // if (!user) {
+  //   console.log("No user found");
+  // }
 
-  const entryData = {
-    date: new Date().toDateString(),
-    temp: weather.main.temp,
-    weather: weather.weather[0].main,
-    feelings: req.body.feelings,
-    creatorId: req.userId,
-  };
+  // const entryData = {
+  //   date: new Date().toDateString(),
+  //   temp: weather.main.temp,
+  //   weather: weather.weather[0].main,
+  //   feelings: req.body.feelings,
+  //   creatorId: req.userId,
+  // };
 
-  const entry = new Entry(entryData);
+  // const entry = new Entry(entryData);
 
-  try {
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
-    await entry.save({ session: sess });
-    user?.entries.push(entry);
-    await user!.save({ session: sess });
-    await sess.commitTransaction();
-  } catch (error) {
-    console.log(error);
-  }
+  // try {
+  //   const sess = await mongoose.startSession();
+  //   sess.startTransaction();
+  //   await entry.save({ session: sess });
+  //   user?.entries.push(entry);
+  //   await user!.save({ session: sess });
+  //   await sess.commitTransaction();
+  // } catch (error) {
+  //   console.log(error);
+  // }
 
-  res.status(201).json({ entryData });
+  res.status(201).json({ message: "ok" });
 };

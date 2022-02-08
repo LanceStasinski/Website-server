@@ -161,13 +161,37 @@ export const postEntry = async (
   res: Response,
   next: NextFunction
 ) => {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
   let weatherData;
+  let location;
   try {
     const response = await axios(
       `http://api.openweathermap.org/data/2.5/weather?zip=${req.body.zip}${WEATHERMAP_KEY}`
     );
-    console.log(response.data);
     const { weather, main, wind, name } = response.data;
+    weatherData = {
+      description: weather[0].description,
+      icon: weather[0].icon,
+      temp: main.temp,
+      wind: {
+        speed: wind.speed,
+        deg: wind.deg,
+      },
+    };
+    location = name;
   } catch (error) {
     const err = new HttpError(
       "Issue getting weather data. Pleae try again.",
@@ -177,37 +201,48 @@ export const postEntry = async (
     return err;
   }
 
-  // let user: any;
-  // try {
-  //   user = await User.findById(req.userId);
-  // } catch (error) {
-  //   console.log(error);
-  // }
+  const date = new Date();
+  const month = months[date.getMonth()];
+  const day = date.getDate().toString();
+  const year = date.getFullYear().toString();
 
-  // if (!user) {
-  //   console.log("No user found");
-  // }
+  const dateInfo = {
+    month,
+    day,
+    year,
+  };
 
-  // const entryData = {
-  //   date: new Date().toDateString(),
-  //   temp: weather.main.temp,
-  //   weather: weather.weather[0].main,
-  //   feelings: req.body.feelings,
-  //   creatorId: req.userId,
-  // };
+  const entry = {
+    weather: weatherData,
+    location,
+    subject: req.body.subject,
+    text: req.body.message,
+    date: dateInfo,
+  };
 
-  // const entry = new Entry(entryData);
+  let user: any;
+  try {
+    user = await User.findById(req.userId);
+  } catch (error) {
+    const err = new HttpError("Could not find user. Please try again.", 500);
+    next(err);
+    return err;
+  }
 
-  // try {
-  //   const sess = await mongoose.startSession();
-  //   sess.startTransaction();
-  //   await entry.save({ session: sess });
-  //   user?.entries.push(entry);
-  //   await user!.save({ session: sess });
-  //   await sess.commitTransaction();
-  // } catch (error) {
-  //   console.log(error);
-  // }
+  if (!user) {
+    const err = new HttpError("Could not find user.", 404);
+    next(err);
+    return err;
+  }
 
-  res.status(201).json({ message: "ok" });
+  try {
+    user.entries.push(entry);
+    await user.save();
+  } catch (error) {
+    const err = new HttpError("Could not save entry. Please try again.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(201).json({ message: "OK" });
 };

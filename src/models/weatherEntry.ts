@@ -1,10 +1,23 @@
 import mongoose, { Schema, model } from "mongoose";
 
 const weatherEntrySchema = new Schema({
-  date: { type: String, required: true },
-  temp: { type: String, required: true },
-  weather: { type: String, required: true },
-  feelings: { type: String, required: true },
+  weather: {
+    description: { type: String, required: true },
+    icon: { type: String, required: true },
+    temp: { type: Number, required: true },
+    wind: {
+      speed: { type: Number, required: true },
+      deg: { type: Number, required: true }
+    }
+  },
+  location: { type: String, required: true },
+  subject: { type: String, required: true },
+  text: { type: String, required: true },
+  date: {
+    month: { type: String, required: true },
+    day: { type: String, required: true },
+    year: { type: String, required: true },
+  },
   creatorId: {
     type: mongoose.Types.ObjectId,
     required: true,
@@ -13,10 +26,23 @@ const weatherEntrySchema = new Schema({
 });
 
 interface WeatherEntryDoc {
-  date: string;
-  temp: string;
-  weather: string;
-  feelings: string;
+  weather: {
+    description: string;
+    icon: string;
+    temp: number;
+    wind: {
+      speed: number;
+      deg: number;
+    }
+  };
+  location: string;
+  subject: string;
+  text: string;
+  date: {
+    month: string;
+    day: string;
+    year: string;
+  }
   creatorId: any;
 }
 

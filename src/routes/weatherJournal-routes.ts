@@ -16,8 +16,6 @@ router.post(
   login
 );
 
-router.post("/new-entry", [check("zip").not().isEmpty()], postEntry);
-
 router.use(auth);
 
 router.post(
@@ -26,6 +24,6 @@ router.post(
   updatePreferences
 );
 
-
+router.post("/new-entry", [check("zip").not().isEmpty()], postEntry);
 
 export default router;

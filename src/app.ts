@@ -25,7 +25,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// app.use("/uploads/images", express.static(path.join("upload", "images")));
+
 app.use(cors()); //use CORS packages to setup CORS
 
 // Manually set CORS
@@ -39,13 +39,6 @@ app.use(cors()); //use CORS packages to setup CORS
 //   next();
 // });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/blog", blogRoutes);
-app.use("/api/contact", contactRoutes);
-app.use("/api/resume", resumeRoutes);
-app.use("/api/travel-app", travelAppRoutes);
-app.use("/api/sentiment-analysis-app", nlpAppRoutes);
-app.use("/api/weather-journal-app", weatherJournalRoutes);
 app.use(
   "/travel-app",
   express.static(path.join(__dirname, "public", "travel-app"))
@@ -58,10 +51,22 @@ app.use(
   "/weather-journal-app",
   express.static(path.join(__dirname, "public", "weatherJournal-app"))
 );
+app.use(express.static(path.resolve(__dirname, './public/website')))
 
-app.use((req, res, next) => {
-  throw new HttpError("Could not find this route.", 404);
+app.use("/api/auth", authRoutes);
+app.use("/api/blog", blogRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/resume", resumeRoutes);
+app.use("/api/travel-app", travelAppRoutes);
+app.use("/api/sentiment-analysis-app", nlpAppRoutes);
+app.use("/api/weather-journal-app", weatherJournalRoutes);
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.sendFile(path.resolve(__dirname, './public/website', 'index.html'))
 });
+// app.use((req, res, next) => {
+//   throw new HttpError("Could not find this route.", 404);
+// });
 
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
   if (req.file) {

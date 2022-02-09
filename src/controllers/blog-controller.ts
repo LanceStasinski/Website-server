@@ -132,10 +132,11 @@ export const createPost = async (
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
-    await createdPost.save({ session: sess });
+    await createdPost.save();
     admin.posts.push(createdPost);
-    await admin.save({ session: sess });
+    await admin.save();
     await sess.commitTransaction();
+    sess.endSession();
   } catch (error) {
     const err = new HttpError("Could not save post.", 500);
     next(err);
@@ -321,7 +322,7 @@ export const deletePost = async (
     try {
       const sess2 = await mongoose.startSession();
       sess2.startTransaction();
-      await com.remove({ session: sess2 });
+      await com.remove();
       com.creatorId.comments.pull(comment);
       await com.creatorId.save({ session: sess2 });
       await sess2.commitTransaction();
@@ -335,7 +336,7 @@ export const deletePost = async (
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
-    await post.remove({ session: sess });
+    await post.remove();
     post.admin.posts.pull(post);
     post.comments?.forEach((comment) => {
       deleteCommentHandler(comment);
@@ -558,11 +559,11 @@ export const postComment = async (
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
-    await createdComment.save({ session: sess });
+    await createdComment.save();
     user.comments!.push(createdComment);
-    post.comments!.push(createdComment);
-    await user.save({ session: sess });
-    await post.save({ session: sess });
+    post.comments!.push
+    await user.save();
+    await post.save();
     await sess.commitTransaction();
   } catch (error) {
     const err = new HttpError("Could not save comment.", 500);
@@ -631,7 +632,7 @@ export const deleteComment = async (
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
-    await comment.remove({ session: sess });
+    await comment.remove();
     comment.creatorId.comments.pull(comment);
     comment.postId.comments.pull(comment);
     await comment.creatorId.save({ session: sess });

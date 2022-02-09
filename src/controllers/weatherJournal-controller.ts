@@ -156,6 +156,31 @@ export const updatePreferences = async (
   res.status(200).send({ zipCode, unitPreference });
 };
 
+export const getEntries = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let user;
+  try {
+    user = await User.findById(req.userId);
+  } catch (error) {
+    const err = new HttpError("Could not find user. Please try again", 500);
+    next(err);
+    return err;
+  }
+
+  if (!user) {
+    const err = new HttpError("Could not find this user.", 404);
+    next(err);
+    return err;
+  }
+
+  const entries = user.entries;
+
+  res.status(200).send({ entries });
+};
+
 export const postEntry = async (
   req: Request,
   res: Response,

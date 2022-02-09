@@ -1,11 +1,12 @@
 import express from "express";
 import { check } from "express-validator";
 
-import { auth } from '../middleware/check-auth';
+import { auth } from "../middleware/check-auth";
 import {
   login,
   postEntry,
   updatePreferences,
+  getEntries,
 } from "../controllers/weatherJournal-controller";
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.post(
 );
 
 router.use(auth);
+
+router.get("/entries", getEntries);
 
 router.post(
   "/preferences",

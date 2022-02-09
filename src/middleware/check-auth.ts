@@ -13,12 +13,12 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
-      throw new HttpError("Authentication failed.", 403);
+      throw new HttpError("Authentication failed.", 401);
     }
     const decodedToken = jwt.verify(token, JWT_KEY) as jwt.JwtPayload;
     req.userId = decodedToken.userId
     next();
   } catch (error) {
-    return next(new HttpError("Authentication failed.", 403));
+    return next(new HttpError("Authentication failed.", 401));
   }
 };

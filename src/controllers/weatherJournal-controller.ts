@@ -73,7 +73,7 @@ export const login = async (
     if (!isValidPassword) {
       const err = new HttpError(
         "Incorrect password. Please try again or create a new profile.",
-        403
+        401
       );
       next(err);
       return err;

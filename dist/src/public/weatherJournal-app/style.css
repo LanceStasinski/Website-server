@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500&display=swap');
+
+/* --- container --- */
+.container {
+  width: 95%;
+  display: grid;
+  grid-auto-rows: min-content;
+  gap: 15px;
+  background-image: linear-gradient(to bottom, rgb(238, 144, 56), rgb(123, 123, 233));
+  justify-content: center;
+}
+
+.main-hero {
+  min-height: 10vh;
+  padding-top: 3em;
+}
+
+/* ---typography--- */
+
+label {
+  font-size: 2em;
+  font-family: 'Red Hat Display', sans-serif;
+  margin: 1.2em 0em;
+  color: #ddd;
+}
+
+h1 {
+  color: #ddd;
+  font-size: 5em;
+}
+
+h2 {
+  color: #ddd;
+  font-size: 2em;
+}
+
+h3, h4, p {
+  color: #ddd;
+  font-family: 'Red Hat Display', sans-serif;
+  padding: 5px;
+}
+
+p {
+  font-size: 1.5em;
+  word-wrap: break-word;
+}
+
+h3, h4 {
+  font-size: 1.5em;
+}
+
+
+/* ---forms--- */
+
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 1em 0em;
+}
+
+input {
+  display: block;
+  height: 50px;
+  font-family: 'Red Hat Display', sans-serif;
+  background-color: rgb(248, 221, 195);
+  font-size: 1.5em;
+}
+
+textarea {
+  font-family: 'Red Hat Display', sans-serif;
+  background-color: rgb(248, 221, 195);
+  font-size: 1.5em;
+  height: 15vh;
+  word-wrap: break-word;
+}
+
+button {
+  display: block;
+  width: 100%;
+  height: 50px;
+  box-shadow: 4px 4px 4px rgba(0, 0 , 0, 0.3);
+  font-family: 'Red Hat Display', sans-serif;
+  font-size: 1.5em;
+  background-color: #444;
+  color: rgb(238, 144, 56);
+}
+
+button:hover{
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+/* ---Recent entry---- */
+#entryHolder {
+  display: none;
+  background-color: #444;
+  box-shadow: 2px 2px 2px rgba(0, 0 , 0, 0.3);
+  font-size: 1.5em;
+  color: #ddd;
+  padding: 1em;
+  font-family: 'Red Hat Display', sans-serif;
+}
+
+#entryHolder div{
+  margin-top: 1em;
+}
+
+/* ---Past entries--- */
+#pastEntries {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.entryBox {
+  background-color: #777;
+  box-shadow: 2px 2px 2px rgba(0, 0 , 0, 0.3);
+  margin: 1em;
+  width: 90%;
+}
+
+#pastTitle {
+  display: none;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+@media only screen and (max-width: 700px) {
+  .container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-image: linear-gradient(to bottom, rgb(238, 144, 56), rgb(123, 123, 233));
+  }
+  .main-hero {
+    min-height: 5vh;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2, h3, h4, label, button, input, textarea, p{
+    font-size: 1em;
+  }
+}

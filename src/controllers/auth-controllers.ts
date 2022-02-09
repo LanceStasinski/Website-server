@@ -120,7 +120,7 @@ export const login = async (
     }
 
     if (!isValidPassword) {
-      return next(new HttpError("Invalid credentials.", 403));
+      return next(new HttpError("Invalid credentials.", 401));
     }
 
     let token;
@@ -154,7 +154,7 @@ export const login = async (
       return err;
     }
     if (!existingUser) {
-      const err = new HttpError("User not found. Sign up?", 403);
+      const err = new HttpError("User not found. Sign up?", 401);
       next(err);
       return err;
     }
@@ -168,7 +168,7 @@ export const login = async (
       return err;
     }
     if (!isValidPassword) {
-      const err = new HttpError("Invalid credentials.", 403);
+      const err = new HttpError("Invalid credentials.", 401);
       next(err);
       return err;
     }

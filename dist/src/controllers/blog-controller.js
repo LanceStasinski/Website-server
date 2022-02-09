@@ -95,10 +95,11 @@ const createPost = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     try {
         const sess = yield mongoose_1.default.startSession();
         sess.startTransaction();
-        yield createdPost.save({ session: sess });
+        yield createdPost.save();
         admin.posts.push(createdPost);
-        yield admin.save({ session: sess });
+        yield admin.save();
         yield sess.commitTransaction();
+        sess.endSession();
     }
     catch (error) {
         const err = new http_error_1.default("Could not save post.", 500);
@@ -249,7 +250,7 @@ const deletePost = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         try {
             const sess2 = yield mongoose_1.default.startSession();
             sess2.startTransaction();
-            yield com.remove({ session: sess2 });
+            yield com.remove();
             com.creatorId.comments.pull(comment);
             yield com.creatorId.save({ session: sess2 });
             yield sess2.commitTransaction();
@@ -263,7 +264,7 @@ const deletePost = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     try {
         const sess = yield mongoose_1.default.startSession();
         sess.startTransaction();
-        yield post.remove({ session: sess });
+        yield post.remove();
         post.admin.posts.pull(post);
         (_a = post.comments) === null || _a === void 0 ? void 0 : _a.forEach((comment) => {
             deleteCommentHandler(comment);
@@ -422,11 +423,11 @@ const postComment = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     try {
         const sess = yield mongoose_1.default.startSession();
         sess.startTransaction();
-        yield createdComment.save({ session: sess });
+        yield createdComment.save();
         user.comments.push(createdComment);
-        post.comments.push(createdComment);
-        yield user.save({ session: sess });
-        yield post.save({ session: sess });
+        post.comments.push;
+        yield user.save();
+        yield post.save();
         yield sess.commitTransaction();
     }
     catch (error) {
@@ -482,7 +483,7 @@ const deleteComment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     try {
         const sess = yield mongoose_1.default.startSession();
         sess.startTransaction();
-        yield comment.remove({ session: sess });
+        yield comment.remove();
         comment.creatorId.comments.pull(comment);
         comment.postId.comments.pull(comment);
         yield comment.creatorId.save({ session: sess });

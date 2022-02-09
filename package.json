@@ -9,7 +9,7 @@
   "scripts": {
     "start-dev": "nodemon --config nodemon.json src/app.ts",
     "dev:debug": "nodemon --config nodemon.json --inspect-brk src/app.ts",
-    "start": "node dist/src/app.ts",
+    "start": "node dist/src/app.js",
     "build": "tsc --project ./",
     "test": "mocha -r ts-node/register src/test/**/*.test.ts --timeout 10000"
   },

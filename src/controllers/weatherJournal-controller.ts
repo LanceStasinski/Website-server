@@ -3,6 +3,7 @@ import axios from "axios";
 import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import { ObjectId } from "mongodb";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -334,4 +335,53 @@ export const deleteEntry = async (
   }
 
   res.status(200).send({ id: req.body.id });
+};
+
+export const updateEntry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new HttpError("Invalid input. Please try again.", 422);
+    next(err);
+    return err;
+  }
+  const entryId = req.params.entryId;
+
+  let user;
+  try {
+    await User.findOneAndUpdate(
+      {
+        _id: req.userId,
+        entries: { $elemMatch: { _id: entryId } },
+      },
+      {
+        $set: {
+          "entries.$.subject": req.body.subject,
+          "entries.$.text": req.body.message,
+        },
+      }
+    );
+  } catch (error) {
+    const err = new HttpError("Could not save changes. Please try again.", 500);
+    next(err);
+    return err;
+  }
+
+  let updatedEntry;
+  try {
+    const entry = await User.findOne(
+      { _id: req.userId },
+      { entries: { $elemMatch: { _id: entryId } } }
+    );
+    updatedEntry = entry?.entries[0];
+  } catch (error) {
+    const err = new HttpError("Could not get updated entry.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(200).send({ updatedEntry });
 };

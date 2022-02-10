@@ -260,14 +260,22 @@ export const postEntry = async (
     return err;
   }
 
+  let newEntry;
   try {
     user.entries.push(entry);
     await user.save();
+    newEntry = user.entries.pop();
   } catch (error) {
     const err = new HttpError("Could not save entry. Please try again.", 500);
     next(err);
     return err;
   }
 
-  res.status(201).json({ message: "OK" });
+  if (!newEntry) {
+    const err = new HttpError("Could not save entry. Please try again.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(201).json({ newEntry });
 };

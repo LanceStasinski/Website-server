@@ -14,6 +14,29 @@ dotenv.config;
 const WEATHERMAP_KEY = process.env.WEATHERMAP_KEY;
 const JWT_KEY = process.env.JWT_KEY!;
 
+type EntryArray = [
+  {
+    weather: {
+      description: string;
+      icon: string;
+      temp: number;
+      wind: {
+        speed: number;
+        deg: number;
+      };
+    };
+    location: string;
+    subject: string;
+    text: string;
+    date: {
+      month: string;
+      day: string;
+      year: string;
+    };
+    _id: any;
+  }
+];
+
 export const login = async (
   req: Request,
   res: Response,
@@ -186,6 +209,13 @@ export const postEntry = async (
   res: Response,
   next: NextFunction
 ) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new HttpError("Invalid inputs. Please try again.", 422);
+    next(err);
+    return err;
+  }
+
   const months = [
     "January",
     "February",
@@ -278,4 +308,30 @@ export const postEntry = async (
   }
 
   res.status(201).json({ newEntry });
+};
+
+export const deleteEntry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err = new HttpError("No post to delete.", 422);
+    next(err);
+    return err;
+  }
+
+  try {
+    await User.updateOne(
+      { _id: req.userId },
+      { $pull: { entries: { _id: req.body.id } } }
+    );
+  } catch (error) {
+    const err = new HttpError("Could not delete entry. Please try again.", 500);
+    next(err);
+    return err;
+  }
+
+  res.status(200).send({ id: req.body.id });
 };

@@ -50,6 +50,7 @@ interface WeatherUserDoc {
         day: string;
         year: string;
       };
+      _id: any;
     }
   ];
   unitPreference: "imperial" | "metric" | "standard";

@@ -99,7 +99,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return next(new http_error_1.default("Bcrypt error", 500));
         }
         if (!isValidPassword) {
-            return next(new http_error_1.default("Invalid credentials.", 403));
+            return next(new http_error_1.default("Invalid credentials.", 401));
         }
         let token;
         try {
@@ -128,7 +128,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return err;
         }
         if (!existingUser) {
-            const err = new http_error_1.default("User not found. Sign up?", 403);
+            const err = new http_error_1.default("User not found. Sign up?", 401);
             next(err);
             return err;
         }
@@ -142,7 +142,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return err;
         }
         if (!isValidPassword) {
-            const err = new http_error_1.default("Invalid credentials.", 403);
+            const err = new http_error_1.default("Invalid credentials.", 401);
             next(err);
             return err;
         }

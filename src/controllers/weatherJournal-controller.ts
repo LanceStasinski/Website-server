@@ -104,14 +104,6 @@ export const login = async (
     }
 
     user = existingUser;
-    // try {
-    //   entries = await Entry.find({ creatorId: existingUser.id });
-    //   user = existingUser;
-    // } catch (error) {
-    //   const err = new HttpError("Error getting entries.", 500);
-    //   next(err);
-    //   return err;
-    // }
   }
 
   let token;
@@ -150,6 +142,12 @@ export const updatePreferences = async (
   }
 
   const { unitPreference, zipCode } = req.body;
+
+  if (zipCode === "no zip") {
+    const err = new HttpError("Please enter a zip code.", 422);
+    next(err);
+    return err;
+  }
 
   let user;
   try {
@@ -250,7 +248,7 @@ export const postEntry = async (
     location = name;
   } catch (error) {
     const err = new HttpError(
-      "Issue getting weather data. Pleae try again.",
+      "Issue getting weather data. Please check your zip code setting and try again.",
       500
     );
     next(err);

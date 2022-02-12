@@ -25,7 +25,6 @@ const app = express();
 
 app.use(bodyParser.json());
 
-
 app.use(cors()); //use CORS packages to setup CORS
 
 // Manually set CORS
@@ -49,9 +48,9 @@ app.use(
 );
 app.use(
   "/weather-journal-app",
-  express.static(path.join(__dirname, "public", "weatherJournal-app"))
+  express.static(path.resolve(__dirname, "./public/weather-journal-app"))
 );
-app.use(express.static(path.resolve(__dirname, './public/website')))
+app.use(express.static(path.resolve(__dirname, "./public/website")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/blog", blogRoutes);
@@ -62,7 +61,7 @@ app.use("/api/sentiment-analysis-app", nlpAppRoutes);
 app.use("/api/weather-journal-app", weatherJournalRoutes);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.sendFile(path.resolve(__dirname, './public/website', 'index.html'))
+  res.sendFile(path.resolve(__dirname, "./public/website", "index.html"));
 });
 // app.use((req, res, next) => {
 //   throw new HttpError("Could not find this route.", 404);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postEntry = exports.getEntries = exports.updatePreferences = exports.login = void 0;
+exports.updateEntry = exports.deleteEntry = exports.postEntry = exports.getEntries = exports.updatePreferences = exports.login = void 0;
 const express_validator_1 = require("express-validator");
 const axios_1 = __importDefault(require("axios"));
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -76,19 +76,11 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             return err;
         }
         if (!isValidPassword) {
-            const err = new http_error_1.default("Incorrect password. Please try again or create a new profile.", 403);
+            const err = new http_error_1.default("Incorrect password. Please try again or create a new profile.", 401);
             next(err);
             return err;
         }
         user = existingUser;
-        // try {
-        //   entries = await Entry.find({ creatorId: existingUser.id });
-        //   user = existingUser;
-        // } catch (error) {
-        //   const err = new HttpError("Error getting entries.", 500);
-        //   next(err);
-        //   return err;
-        // }
     }
     let token;
     try {
@@ -118,6 +110,11 @@ const updatePreferences = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         return err;
     }
     const { unitPreference, zipCode } = req.body;
+    if (zipCode === "no zip") {
+        const err = new http_error_1.default("Please enter a zip code.", 422);
+        next(err);
+        return err;
+    }
     let user;
     try {
         user = yield weatherUser_1.weatherUserModel.findById(req.userId);
@@ -165,6 +162,12 @@ const getEntries = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getEntries = getEntries;
 const postEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        const err = new http_error_1.default("Invalid inputs. Please try again.", 422);
+        next(err);
+        return err;
+    }
     const months = [
         "January",
         "February",
@@ -196,7 +199,7 @@ const postEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         location = name;
     }
     catch (error) {
-        const err = new http_error_1.default("Issue getting weather data. Pleae try again.", 500);
+        const err = new http_error_1.default("Issue getting weather data. Please check your zip code setting and try again.", 500);
         next(err);
         return err;
     }
@@ -230,15 +233,78 @@ const postEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         next(err);
         return err;
     }
+    let newEntry;
     try {
         user.entries.push(entry);
         yield user.save();
+        newEntry = user.entries.pop();
     }
     catch (error) {
         const err = new http_error_1.default("Could not save entry. Please try again.", 500);
         next(err);
         return err;
     }
-    res.status(201).json({ message: "OK" });
+    if (!newEntry) {
+        const err = new http_error_1.default("Could not save entry. Please try again.", 500);
+        next(err);
+        return err;
+    }
+    res.status(201).json({ newEntry });
 });
 exports.postEntry = postEntry;
+const deleteEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        const err = new http_error_1.default("No post to delete.", 422);
+        next(err);
+        return err;
+    }
+    try {
+        yield weatherUser_1.weatherUserModel.updateOne({ _id: req.userId }, { $pull: { entries: { _id: req.body.id } } });
+    }
+    catch (error) {
+        const err = new http_error_1.default("Could not delete entry. Please try again.", 500);
+        next(err);
+        return err;
+    }
+    res.status(200).send({ id: req.body.id });
+});
+exports.deleteEntry = deleteEntry;
+const updateEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        const err = new http_error_1.default("Invalid input. Please try again.", 422);
+        next(err);
+        return err;
+    }
+    const entryId = req.params.entryId;
+    let user;
+    try {
+        yield weatherUser_1.weatherUserModel.findOneAndUpdate({
+            _id: req.userId,
+            entries: { $elemMatch: { _id: entryId } },
+        }, {
+            $set: {
+                "entries.$.subject": req.body.subject,
+                "entries.$.text": req.body.message,
+            },
+        });
+    }
+    catch (error) {
+        const err = new http_error_1.default("Could not save changes. Please try again.", 500);
+        next(err);
+        return err;
+    }
+    let updatedEntry;
+    try {
+        const entry = yield weatherUser_1.weatherUserModel.findOne({ _id: req.userId }, { entries: { $elemMatch: { _id: entryId } } });
+        updatedEntry = entry === null || entry === void 0 ? void 0 : entry.entries[0];
+    }
+    catch (error) {
+        const err = new http_error_1.default("Could not get updated entry.", 500);
+        next(err);
+        return err;
+    }
+    res.status(200).send({ updatedEntry });
+});
+exports.updateEntry = updateEntry;

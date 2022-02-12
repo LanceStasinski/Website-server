@@ -17,14 +17,14 @@ const auth = (req, res, next) => {
     try {
         const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
         if (!token) {
-            throw new http_error_1.default("Authentication failed.", 403);
+            throw new http_error_1.default("Authentication failed.", 401);
         }
         const decodedToken = jsonwebtoken_1.default.verify(token, JWT_KEY);
         req.userId = decodedToken.userId;
         next();
     }
     catch (error) {
-        return next(new http_error_1.default("Authentication failed.", 403));
+        return next(new http_error_1.default("Authentication failed.", 401));
     }
 };
 exports.auth = auth;

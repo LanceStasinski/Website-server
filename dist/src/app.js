@@ -36,8 +36,8 @@ app.use((0, cors_1.default)()); //use CORS packages to setup CORS
 // });
 app.use("/travel-app", express_1.default.static(path_1.default.join(__dirname, "public", "travel-app")));
 app.use("/sentiment-analysis-app", express_1.default.static(path_1.default.join(__dirname, "public", "nlp-app")));
-app.use("/weather-journal-app", express_1.default.static(path_1.default.join(__dirname, "public", "weatherJournal-app")));
-app.use(express_1.default.static(path_1.default.resolve(__dirname, './public/website')));
+app.use("/weather-journal-app", express_1.default.static(path_1.default.resolve(__dirname, "./public/weather-journal-app")));
+app.use(express_1.default.static(path_1.default.resolve(__dirname, "./public/website")));
 app.use("/api/auth", auth_routes_1.default);
 app.use("/api/blog", blog_routes_1.default);
 app.use("/api/contact", contact_routes_1.default);
@@ -46,7 +46,7 @@ app.use("/api/travel-app", travelApp_routes_1.default);
 app.use("/api/sentiment-analysis-app", nlpApp_routes_1.default);
 app.use("/api/weather-journal-app", weatherJournal_routes_1.default);
 app.use((req, res, next) => {
-    res.sendFile(path_1.default.resolve(__dirname, './public/website', 'index.html'));
+    res.sendFile(path_1.default.resolve(__dirname, "./public/website", "index.html"));
 });
 // app.use((req, res, next) => {
 //   throw new HttpError("Could not find this route.", 404);

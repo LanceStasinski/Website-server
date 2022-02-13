@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/weather-journal-app/static/css/main.38a641af.css",
-    "main.js": "/weather-journal-app/static/js/main.0f44358d.js",
+    "main.js": "/weather-journal-app/static/js/main.e988881e.js",
     "static/js/652.89d0fd95.chunk.js": "/weather-journal-app/static/js/652.89d0fd95.chunk.js",
     "static/js/60.c31b8b28.chunk.js": "/weather-journal-app/static/js/60.c31b8b28.chunk.js",
     "static/js/787.3b7b805a.chunk.js": "/weather-journal-app/static/js/787.3b7b805a.chunk.js",
@@ -12,7 +12,7 @@
     "static/media/windIcon.png": "/weather-journal-app/static/media/windIcon.48469b6fe35e1c432637.png",
     "index.html": "/weather-journal-app/index.html",
     "main.38a641af.css.map": "/weather-journal-app/static/css/main.38a641af.css.map",
-    "main.0f44358d.js.map": "/weather-journal-app/static/js/main.0f44358d.js.map",
+    "main.e988881e.js.map": "/weather-journal-app/static/js/main.e988881e.js.map",
     "652.89d0fd95.chunk.js.map": "/weather-journal-app/static/js/652.89d0fd95.chunk.js.map",
     "60.c31b8b28.chunk.js.map": "/weather-journal-app/static/js/60.c31b8b28.chunk.js.map",
     "787.3b7b805a.chunk.js.map": "/weather-journal-app/static/js/787.3b7b805a.chunk.js.map",
@@ -20,6 +20,6 @@
   },
   "entrypoints": [
     "static/css/main.38a641af.css",
-    "static/js/main.0f44358d.js"
+    "static/js/main.e988881e.js"
   ]
 }

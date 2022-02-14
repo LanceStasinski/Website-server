@@ -47,6 +47,14 @@ app.use(
   express.static(path.join(__dirname, "public", "nlp-app"))
 );
 app.use(
+  "/landing-page",
+  express.static(path.join(__dirname, "public", "landing-page"))
+);
+app.use(
+  "/my-first-blog",
+  express.static(path.join(__dirname, "public", "blog"))
+);
+app.use(
   "/weather-journal-app",
   express.static(path.resolve(__dirname, "./public/weather-journal-app"))
 );

@@ -36,6 +36,8 @@ app.use((0, cors_1.default)()); //use CORS packages to setup CORS
 // });
 app.use("/travel-app", express_1.default.static(path_1.default.join(__dirname, "public", "travel-app")));
 app.use("/sentiment-analysis-app", express_1.default.static(path_1.default.join(__dirname, "public", "nlp-app")));
+app.use("/landing-page", express_1.default.static(path_1.default.join(__dirname, "public", "landing-page")));
+app.use("/my-first-blog", express_1.default.static(path_1.default.join(__dirname, "public", "blog")));
 app.use("/weather-journal-app", express_1.default.static(path_1.default.resolve(__dirname, "./public/weather-journal-app")));
 app.use(express_1.default.static(path_1.default.resolve(__dirname, "./public/website")));
 app.use("/api/auth", auth_routes_1.default);

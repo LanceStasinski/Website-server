@@ -25,27 +25,8 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(cors()); //use CORS packages to setup CORS
+app.use(cors());
 
-// Manually set CORS
-// app.use((req, res, next) => {
-//   res.setHeader("Access-Control-Allow-Origin", "*"),
-//     res.setHeader(
-//       "Access-Control-Allow-Headers",
-//       "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-//     );
-//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
-//   next();
-// });
-
-app.use(
-  "/travel-app",
-  express.static(path.join(__dirname, "public", "travel-app"))
-);
-app.use(
-  "/sentiment-analysis-app",
-  express.static(path.join(__dirname, "public", "nlp-app"))
-);
 app.use(
   "/landing-page",
   express.static(path.join(__dirname, "public", "landing-page"))
@@ -53,6 +34,14 @@ app.use(
 app.use(
   "/my-first-blog",
   express.static(path.join(__dirname, "public", "blog"))
+);
+app.use(
+  "/travel-app",
+  express.static(path.join(__dirname, "public", "travel-app"))
+);
+app.use(
+  "/sentiment-analysis-app",
+  express.static(path.join(__dirname, "public", "nlp-app"))
 );
 app.use(
   "/weather-journal-app",
@@ -71,9 +60,6 @@ app.use("/api/weather-journal-app", weatherJournalRoutes);
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.sendFile(path.resolve(__dirname, "./public/website", "index.html"));
 });
-// app.use((req, res, next) => {
-//   throw new HttpError("Could not find this route.", 404);
-// });
 
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
   if (req.file) {

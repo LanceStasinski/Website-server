@@ -29,11 +29,11 @@ app.use(cors());
 
 app.use(
   "/landing-page",
-  express.static(path.resolve(__dirname, "public/landing-page", "index.html"))
+  express.static(path.join(__dirname, "public", "landing-page"))
 );
 app.use(
   "/my-first-blog",
-  express.static(path.resolve(__dirname, "public/blog", "index.html"))
+  express.static(path.join(__dirname, "public", "blog"))
 );
 app.use(
   "/travel-app",

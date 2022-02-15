@@ -1,0 +1,36 @@
+@import url(../general-styling/header.css);
+@import url(../general-styling/footer.css);
+
+.container {
+  width: 90%;
+  margin-left: 5%;
+  background-color: white;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 15px;
+  grid-template-areas:
+    "hd"
+    "ct"
+    "ft";
+}
+
+.block {
+  display: block;
+}
+
+form {
+  grid-area: ct;
+}
+
+p {
+  color: #444;
+}
+
+.label {
+  color: #444;
+}
+
+#submit {
+  color: rgb(8, 155, 155);
+}

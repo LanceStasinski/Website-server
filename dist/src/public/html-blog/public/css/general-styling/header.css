@@ -1,0 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Poiret+One&display=swap");
+
+header {
+  grid-area: hd;
+}
+
+header h1 {
+  color: rgb(8, 155, 155);
+  font-family: Poiret One, monospace;
+}
+
+.nav-list {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  background-image: linear-gradient(to right, rgb(8, 155, 155), #888);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+header li {
+  float: left;
+}
+
+header li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+header li a:hover {
+  background-color: #333;
+  color: white;
+}
+
+.active {
+  background-color: #555;
+}

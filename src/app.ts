@@ -15,7 +15,8 @@ import resumeRoutes from "./routes/resume-routes";
 import travelAppRoutes from "./routes/travelApp-routes";
 import nlpAppRoutes from "./routes/nlpApp-routes";
 import weatherJournalRoutes from "./routes/weatherJournal-routes";
-import landingPageRoutes from './routes/landing-page-routes';
+import landingPageRoutes from "./routes/landing-page-routes";
+import htmlBlogRoutes from "./routes/html-blog-routes";
 import socket from "./socket";
 
 dotenv.config();
@@ -28,7 +29,7 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
 // app.use(
 //   "/landing-page",
@@ -38,10 +39,11 @@ app.use(express.static("public"));
 //   "/my-first-blog",
 //   express.static(path.resolve(__dirname, "public", "blog"))
 // );
-app.use('/landing-page', landingPageRoutes);
-app.get('/my-first-blog', (req: Request, res: Response, next: NextFunction) => {
-  res.sendFile(path.resolve(__dirname, "./public/blog", "index.html"));
-});
+app.use("/landing-page", landingPageRoutes);
+app.use("/my-first-blog", htmlBlogRoutes);
+// app.get('/my-first-blog', (req: Request, res: Response, next: NextFunction) => {
+//   res.sendFile(path.resolve(__dirname, "./public/blog", "index.html"));
+// });
 app.use(
   "/travel-app",
   express.static(path.join(__dirname, "public", "travel-app"))

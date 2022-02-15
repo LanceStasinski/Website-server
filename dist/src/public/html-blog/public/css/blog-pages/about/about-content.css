@@ -1,0 +1,13 @@
+.main {
+  grid-area: ct;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  grid-area: ct;
+}
+
+main img {
+  border-radius: 20%;
+  width: 200px;
+  box-shadow: 4px 4px 2px rgba(0, 0, 0, 0.3);
+}

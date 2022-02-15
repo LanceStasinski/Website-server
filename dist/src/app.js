@@ -17,6 +17,7 @@ const resume_routes_1 = __importDefault(require("./routes/resume-routes"));
 const travelApp_routes_1 = __importDefault(require("./routes/travelApp-routes"));
 const nlpApp_routes_1 = __importDefault(require("./routes/nlpApp-routes"));
 const weatherJournal_routes_1 = __importDefault(require("./routes/weatherJournal-routes"));
+const landing_page_routes_1 = __importDefault(require("./routes/landing-page-routes"));
 const socket_1 = __importDefault(require("./socket"));
 dotenv_1.default.config();
 const MONGO_URI = process.env.MONGO_URI;
@@ -24,14 +25,19 @@ const PORT = process.env.PORT;
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
 app.use((0, cors_1.default)());
-app.use("/landing-page", express_1.default.static(path_1.default.resolve(__dirname, "public", "landing-page")));
-app.use("/my-first-blog", express_1.default.static(path_1.default.resolve(__dirname, "public", "blog")));
-// app.use('/landing-page', (req: Request, res: Response, next: NextFunction) => {
-//   res.sendFile(path.resolve(__dirname, "./public/landing-page", "index.html"));
-// });
-// app.use('/my-first-blog', (req: Request, res: Response, next: NextFunction) => {
-//   res.sendFile(path.resolve(__dirname, "./public/blog", "index.html"));
-// });
+app.use(express_1.default.static("public"));
+// app.use(
+//   "/landing-page",
+//   express.static(path.resolve(__dirname, "public", "landing-page"))
+// );
+// app.use(
+//   "/my-first-blog",
+//   express.static(path.resolve(__dirname, "public", "blog"))
+// );
+app.use('/landing-page', landing_page_routes_1.default);
+app.get('/my-first-blog', (req, res, next) => {
+    res.sendFile(path_1.default.resolve(__dirname, "./public/blog", "index.html"));
+});
 app.use("/travel-app", express_1.default.static(path_1.default.join(__dirname, "public", "travel-app")));
 app.use("/sentiment-analysis-app", express_1.default.static(path_1.default.join(__dirname, "public", "nlp-app")));
 app.use("/weather-journal-app", express_1.default.static(path_1.default.resolve(__dirname, "./public/weather-journal-app")));

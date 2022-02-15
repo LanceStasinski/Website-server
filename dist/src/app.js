@@ -24,8 +24,8 @@ const PORT = process.env.PORT;
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
 app.use((0, cors_1.default)());
-app.use("/landing-page", express_1.default.static(path_1.default.join(__dirname, "public", "landing-page")));
-app.use("/my-first-blog", express_1.default.static(path_1.default.join(__dirname, "public", "blog")));
+app.use("/landing-page", express_1.default.static(path_1.default.resolve(__dirname, "public", "landing-page")));
+app.use("/my-first-blog", express_1.default.static(path_1.default.resolve(__dirname, "public", "blog")));
 // app.use('/landing-page', (req: Request, res: Response, next: NextFunction) => {
 //   res.sendFile(path.resolve(__dirname, "./public/landing-page", "index.html"));
 // });

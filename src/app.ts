@@ -35,6 +35,12 @@ app.use(
   "/my-first-blog",
   express.static(path.join(__dirname, "public", "blog"))
 );
+// app.use('/landing-page', (req: Request, res: Response, next: NextFunction) => {
+//   res.sendFile(path.resolve(__dirname, "./public/landing-page", "index.html"));
+// });
+// app.use('/my-first-blog', (req: Request, res: Response, next: NextFunction) => {
+//   res.sendFile(path.resolve(__dirname, "./public/blog", "index.html"));
+// });
 app.use(
   "/travel-app",
   express.static(path.join(__dirname, "public", "travel-app"))

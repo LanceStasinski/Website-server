@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": "https://github.com/LanceStasinski/Website-server",
   "author": "LanceStasinski <lance.stasinski@gmail.com>",
-  "license": "MIT",
+  "license": "GNU GPLv3",
   "scripts": {
     "start-dev": "nodemon --config nodemon.json src/app.ts",
     "dev:debug": "nodemon --config nodemon.json --inspect-brk src/app.ts",
